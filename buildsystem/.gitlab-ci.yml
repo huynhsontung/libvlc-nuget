@@ -1,6 +1,6 @@
 variables:
     VLC_UWP_LLVM_IMAGE: registry.videolan.org/vlc-debian-llvm-uwp:20211020111246
-    VLC_VERSION: 3.0.16
+    VLC_VERSION: 3.0.20
     UWP_LIBVLC_BUILD_FLAGS: -z -r -u -w
 
 .variables-win32: &variables-win32

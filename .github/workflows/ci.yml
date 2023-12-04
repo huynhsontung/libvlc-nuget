@@ -106,7 +106,7 @@ jobs:
         with:
           nuget-version: '5.x'
       - name: Authenticate to GitHub Packages
-        run: nuget sources add -username ${{ github.actor }} -password ${{ secrets.GITHUB_TOKEN }} -StorePasswordInClearText -name github "https://nuget.pkg.github.com/${{ github.repository_owner }}/index.json"
+        run: nuget sources add -Username ${{ github.actor }} -Password ${{ secrets.GITHUB_TOKEN }} -StorePasswordInClearText -Name github -Source "https://nuget.pkg.github.com/${{ github.repository_owner }}/index.json"
       - name: Create NuGet folders
         shell: bash
         run: |

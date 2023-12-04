@@ -40,16 +40,17 @@ jobs:
           submodules: true
       - name: Apply patches
         run: |
+          cd vlc
           git config --global user.email "cone@example.com"
           git config --global user.name "Cony Cone"
-          git am -3 patches/*.patch
+          git am -3 ../patches/*.patch
           if [ $? -ne 0 ]; then
             git am --abort
             echo "Applying the patches failed, aborting git-am"
             exit 1
           fi
       - name: Build
-        run: extras/package/win32/build.sh -c -a ${{ matrix.host-arch }} $UWP_LIBVLC_BUILD_FLAGS
+        run: vlc/extras/package/win32/build.sh -c -a ${{ matrix.host-arch }} $UWP_LIBVLC_BUILD_FLAGS
       - name: Upload artifact
         uses: actions/upload-artifact@v3
         with:

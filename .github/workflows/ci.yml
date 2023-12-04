@@ -71,18 +71,14 @@ jobs:
           git clone https://code.videolan.org/mfkl/vlc-winrt && cd vlc-winrt && git checkout uwp-access-v3
           mkdir -p libvlc/Universal/vlc-${{ matrix.arch }}/Release
       - name: Download VLC headers
-        uses: azure/powershell@v1
-        with:
-          inlineScript: |
-            Invoke-WebRequest -Uri "https://code.videolan.org/videolan/vlc/-/archive/3.0.x/vlc-3.0.x.zip" -OutFile "vlc-3.0.x.zip"
-          azPSVersion : '3.1.0'
+        run: Invoke-WebRequest -Uri "https://code.videolan.org/videolan/vlc/-/archive/3.0.x/vlc-3.0.x.zip" -OutFile "vlc-3.0.x.zip"
       - name: Extract LibVLC
         shell: bash
         run: | 
           7z x vlc-3.0.x.zip -ovlc
           mv vlc/vlc-3.0.x/include vlc-winrt/libvlc/Universal/vlc-${{ matrix.arch }}/Release
       - name: Add msbuild to PATH
-        uses: microsoft/setup-msbuild@v1.0.3
+        uses: microsoft/setup-msbuild@v1.3
       - name: MSBuild x64/ARM
         if: matrix.arch != 'x86'
         working-directory: vlc-winrt/modules/libaccess_winrt_plugin.UWP

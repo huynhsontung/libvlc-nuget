@@ -56,7 +56,8 @@ jobs:
         uses: actions/upload-artifact@v3
         with:
           name: libvlc-${{ matrix.arch }}
-          path: ${{ matrix.short-arch }}-uwp/vlc-${{ env.VLC_VERSION }}-${{ matrix.short-arch }}.7z
+          path: ${{ matrix.short-arch }}-uwp/vlc-${{ env.VLC_VERSION }}-*.7z
+          if-no-files-found: error
 
   UWP_access_v3:
     strategy:
@@ -91,6 +92,7 @@ jobs:
         with:
           name: libvlc-uwp-access-build-${{ matrix.arch }}
           path: vlc-winrt/modules/libaccess_winrt_plugin.UWP/Release/libaccess_winrt_plugin.UWP
+          if-no-files-found: error
   
   UWP_NuGet:
     runs-on: ubuntu-latest

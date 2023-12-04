@@ -31,6 +31,8 @@ jobs:
             short-arch: winarm
             host-arch: armv7
     env:
+      SHORTARCH: ${{ matrix.short-arch }}
+      HOST_ARCH: ${{ matrix.host-arch }}
       TRIPLET: ${{ matrix.host-arch }}-w64-mingw32
       BUILD_PATH: vlc/${{ matrix.short-arch }}-uwp/vlc-$VLC_VERSION-${{ matrix.short-arch }}.7z
     steps:
@@ -55,7 +57,7 @@ jobs:
         uses: actions/upload-artifact@v3
         with:
           name: libvlc-${{ matrix.arch }}
-          path: ${{ env.BUILD_PATH }}
+          path: vlc/${{ matrix.short-arch }}-uwp/vlc-${{ env.VLC_VERSION }}-${{ matrix.short-arch }}.7z
 
   UWP_access_v3:
     strategy:

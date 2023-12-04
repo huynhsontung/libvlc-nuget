@@ -14,7 +14,9 @@ env:
 jobs:
   libvlc:
     runs-on: ubuntu-latest
-    container: registry.videolan.org/vlc-debian-llvm-uwp:20211020111246
+    container:
+      image: registry.videolan.org/vlc-debian-llvm-uwp:20211020111246
+      options: -u root
     strategy:
       matrix:
         arch: [x86, x64, arm]

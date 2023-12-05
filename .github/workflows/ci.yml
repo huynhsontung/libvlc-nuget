@@ -152,4 +152,4 @@ jobs:
           name: libvlc-uwp
           path: '*.nupkg'
       - name: Push to GitHub Packages
-        run: nuget push *.nupkg -Source github
+        run: nuget push *.nupkg -Source github -ApiKey ${{ secrets.GITHUB_TOKEN }}

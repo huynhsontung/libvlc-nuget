@@ -5,6 +5,8 @@ on:
     branches:
       - main
       - master
+    tags:
+      - '*'
   pull_request:
 
 env:
@@ -152,4 +154,5 @@ jobs:
           name: libvlc-uwp
           path: '*.nupkg'
       - name: Push to GitHub Packages
+        if: github.ref_type == 'tag'
         run: nuget push *.nupkg -Source github -ApiKey ${{ secrets.GITHUB_TOKEN }}

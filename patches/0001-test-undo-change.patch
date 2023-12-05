@@ -1,0 +1,30 @@
+From 03ff41746a2a4355089f22bd0470d3b416385328 Mon Sep 17 00:00:00 2001
+From: Tung Huynh <tung75605@gmail.com>
+Date: Mon, 4 Dec 2023 23:52:25 -0800
+Subject: [PATCH] test undo change
+
+---
+ modules/demux/mpeg/ts_hotfixes.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/modules/demux/mpeg/ts_hotfixes.c b/modules/demux/mpeg/ts_hotfixes.c
+index c08f54c122..64ad9f1099 100644
+--- a/modules/demux/mpeg/ts_hotfixes.c
++++ b/modules/demux/mpeg/ts_hotfixes.c
+@@ -167,11 +167,11 @@ void ProbePES( demux_t *p_demux, ts_pid_t *pid, const uint8_t *p_pesstart, size_
+     {
+         pid->probed.i_cat = AUDIO_ES;
+         if( p_data[0] == 0xFF && (p_data[1] & 0xE0) == 0xE0 &&
+-           (p_data[1] & 0x18) != 0x08 && (p_data[1] & 0x06) != 0x00 )
++           (p_data[1] & 0x0C) != 0x04 && (p_data[1] & 0x03) == 0x00 )
+         {
+             pid->probed.i_fourcc = VLC_CODEC_MPGA;
+         }
+-        else if( p_data[0] == 0xFF && (p_data[1] & 0xF6) == 0xF0 )
++        else if( p_data[0] == 0xFF && (p_data[1] & 0xF2) == 0xF0 )
+         {
+             pid->probed.i_fourcc = VLC_CODEC_MP4A; /* ADTS */
+             pid->probed.i_original_fourcc = VLC_FOURCC('A','D','T','S');
+-- 
+2.42.0.windows.2
+

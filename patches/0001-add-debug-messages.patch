@@ -1,14 +1,14 @@
-From eb125a060d93d61b418b8da6015511fd29d36826 Mon Sep 17 00:00:00 2001
+From 7f5c5ea6b79a29f4aba0da473d90f3d72e127c60 Mon Sep 17 00:00:00 2001
 From: Tung Huynh <tung75605@gmail.com>
-Date: Tue, 5 Dec 2023 21:16:04 -0800
-Subject: [PATCH] add debug messages
+Date: Tue, 5 Dec 2023 21:21:33 -0800
+Subject: [PATCH 1/2] add debug messages
 
 ---
- modules/video_output/win32/direct3d11.c | 5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ modules/video_output/win32/direct3d11.c | 10 +++++++++-
+ 1 file changed, 9 insertions(+), 1 deletion(-)
 
 diff --git a/modules/video_output/win32/direct3d11.c b/modules/video_output/win32/direct3d11.c
-index 06aeddeff8..7205a957b0 100644
+index 06aeddeff8..1e5e9effe8 100644
 --- a/modules/video_output/win32/direct3d11.c
 +++ b/modules/video_output/win32/direct3d11.c
 @@ -1453,6 +1453,7 @@ static bool BogusZeroCopy(const vout_display_t *vd)
@@ -28,7 +28,28 @@ index 06aeddeff8..7205a957b0 100644
  }
  
  static int Direct3D11Open(vout_display_t *vd, bool external_device)
-@@ -1741,6 +1742,7 @@ static void UpdatePicQuadPosition(vout_display_t *vd)
+@@ -1565,10 +1566,12 @@ static int Direct3D11Open(vout_display_t *vd, bool external_device)
+ 
+     video_format_Init(&sys->quad_fmt, vd->source.i_chroma);
+     video_format_Copy(&sys->quad_fmt, &vd->source);
++    msg_Dbg(vd, "Copied quad_fmt from source");
+     if (sys->upscaleMode == upscale_VideoProcessor || sys->upscaleMode == upscale_SuperResolution)
+         sys->sys.src_fmt = &sys->quad_fmt;
+ 
+     video_format_Copy(&sys->pool_fmt, &fmt);
++    msg_Dbg(vd, "Copied pool_fmt from fmt");
+ 
+     sys->legacy_shader = sys->d3d_dev.feature_level < D3D_FEATURE_LEVEL_10_0 ||
+             (sys->scaleProc == NULL && !CanUseTextureArray(vd)) ||
+@@ -1694,6 +1697,7 @@ static int SetupOutputFormat(vout_display_t *vd, video_format_t *fmt)
+         return VLC_EGENERIC;
+     }
+ 
++    msg_Dbg(vd, "Leaving SetupOutputFormat");
+     return VLC_SUCCESS;
+ }
+ 
+@@ -1741,6 +1745,7 @@ static void UpdatePicQuadPosition(vout_display_t *vd)
     TODO : seperate out into smaller functions like createshaders */
  static int Direct3D11CreateFormatResources(vout_display_t *vd, const video_format_t *fmt)
  {
@@ -36,13 +57,29 @@ index 06aeddeff8..7205a957b0 100644
      vout_display_sys_t *sys = vd->sys;
      HRESULT hr;
  
-@@ -1754,6 +1756,7 @@ static int Direct3D11CreateFormatResources(vout_display_t *vd, const video_forma
+@@ -1754,6 +1759,7 @@ static int Direct3D11CreateFormatResources(vout_display_t *vd, const video_forma
          return VLC_EGENERIC;
      }
  
 +    msg_Dbg(vd, "Compiled pixel shader");
      sys->picQuad.i_width  = fmt->i_width;
      sys->picQuad.i_height = fmt->i_height;
+ 
+@@ -1788,6 +1794,7 @@ static int Direct3D11CreateFormatResources(vout_display_t *vd, const video_forma
+ #endif
+ 
+     vd->info.is_slow = !is_d3d11_opaque(fmt->i_chroma) && sys->picQuad.formatInfo->formatTexture != DXGI_FORMAT_UNKNOWN;
++    msg_Dbg(vd, "Leaving Direct3D11CreateFormatResources");
+     return VLC_SUCCESS;
+ }
+ 
+@@ -1830,6 +1837,7 @@ error:
+ 
+ static int Direct3D11CreateGenericResources(vout_display_t *vd)
+ {
++    msg_Dbg(vd, "Entering Direct3D11CreateGenericResources");
+     vout_display_sys_t *sys = vd->sys;
+     HRESULT hr;
  
 -- 
 2.42.0.windows.2

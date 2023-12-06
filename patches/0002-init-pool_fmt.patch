@@ -1,0 +1,24 @@
+From fc21ece73160b5d63cdeda7c1ba0601b545bd49c Mon Sep 17 00:00:00 2001
+From: Tung Huynh <tung75605@gmail.com>
+Date: Tue, 5 Dec 2023 22:35:39 -0800
+Subject: [PATCH 2/2] init pool_fmt
+
+---
+ modules/video_output/win32/direct3d11.c | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/modules/video_output/win32/direct3d11.c b/modules/video_output/win32/direct3d11.c
+index 1e5e9effe8..6abf4ce829 100644
+--- a/modules/video_output/win32/direct3d11.c
++++ b/modules/video_output/win32/direct3d11.c
+@@ -1570,6 +1570,7 @@ static int Direct3D11Open(vout_display_t *vd, bool external_device)
+     if (sys->upscaleMode == upscale_VideoProcessor || sys->upscaleMode == upscale_SuperResolution)
+         sys->sys.src_fmt = &sys->quad_fmt;
+ 
++    video_format_Init(&sys->pool_fmt, vd->source.i_chroma);
+     video_format_Copy(&sys->pool_fmt, &fmt);
+     msg_Dbg(vd, "Copied pool_fmt from fmt");
+ 
+-- 
+2.42.0.windows.2
+

@@ -1,0 +1,49 @@
+From eb125a060d93d61b418b8da6015511fd29d36826 Mon Sep 17 00:00:00 2001
+From: Tung Huynh <tung75605@gmail.com>
+Date: Tue, 5 Dec 2023 21:16:04 -0800
+Subject: [PATCH] add debug messages
+
+---
+ modules/video_output/win32/direct3d11.c | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
+
+diff --git a/modules/video_output/win32/direct3d11.c b/modules/video_output/win32/direct3d11.c
+index 06aeddeff8..7205a957b0 100644
+--- a/modules/video_output/win32/direct3d11.c
++++ b/modules/video_output/win32/direct3d11.c
+@@ -1453,6 +1453,7 @@ static bool BogusZeroCopy(const vout_display_t *vd)
+ static void InitScaleProcessor(vout_display_t *vd)
+ {
+     vout_display_sys_t *sys = vd->sys;
++    msg_Dbg(vd, "Setting up %d scaler", sys->upscaleMode);
+     if (sys->upscaleMode != upscale_VideoProcessor && sys->upscaleMode != upscale_SuperResolution)
+         return;
+ 
+@@ -1462,7 +1463,7 @@ static void InitScaleProcessor(vout_display_t *vd)
+     if (sys->scaleProc == NULL)
+         sys->upscaleMode = upscale_LinearSampler;
+ 
+-    msg_Dbg(vd, "Using %s scaler", ppsz_upscale_mode_text[sys->upscaleMode]);
++    msg_Dbg(vd, "Using %d scaler", sys->upscaleMode);
+ }
+ 
+ static int Direct3D11Open(vout_display_t *vd, bool external_device)
+@@ -1741,6 +1742,7 @@ static void UpdatePicQuadPosition(vout_display_t *vd)
+    TODO : seperate out into smaller functions like createshaders */
+ static int Direct3D11CreateFormatResources(vout_display_t *vd, const video_format_t *fmt)
+ {
++    msg_Dbg(vd, "Entering Direct3D11CreateFormatResources");
+     vout_display_sys_t *sys = vd->sys;
+     HRESULT hr;
+ 
+@@ -1754,6 +1756,7 @@ static int Direct3D11CreateFormatResources(vout_display_t *vd, const video_forma
+         return VLC_EGENERIC;
+     }
+ 
++    msg_Dbg(vd, "Compiled pixel shader");
+     sys->picQuad.i_width  = fmt->i_width;
+     sys->picQuad.i_height = fmt->i_height;
+ 
+-- 
+2.42.0.windows.2
+

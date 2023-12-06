@@ -1,0 +1,33 @@
+From 113eca884b55aaa59e672b8fd6e664cb49bbdbb9 Mon Sep 17 00:00:00 2001
+From: Tung Huynh <tung75605@gmail.com>
+Date: Wed, 6 Dec 2023 01:27:52 -0800
+Subject: [PATCH 3/3] fallback to vd->source
+
+---
+ modules/video_output/win32/common.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
+
+diff --git a/modules/video_output/win32/common.c b/modules/video_output/win32/common.c
+index 4fdadec54f..7765e8b339 100644
+--- a/modules/video_output/win32/common.c
++++ b/modules/video_output/win32/common.c
+@@ -162,7 +162,7 @@ void UpdateRects(vout_display_t *vd,
+     bool is_forced)
+ {
+     vout_display_sys_t *sys = vd->sys;
+-    const video_format_t *source = sys->src_fmt;
++    const video_format_t *source = sys->src_fmt ? sys->src_fmt : &vd->source;
+ #define rect_src sys->rect_src
+ #define rect_src_clipped sys->rect_src_clipped
+ #define rect_dest sys->rect_dest
+@@ -227,6 +227,7 @@ void UpdateRects(vout_display_t *vd,
+ #endif
+ 
+     vout_display_place_t place;
++    msg_Dbg(vd, "place: %p; source: %p", &place, source);
+     vout_display_PlacePicture(&place, source, &place_cfg, false);
+ 
+ #if !VLC_WINSTORE_APP
+-- 
+2.42.0.windows.2
+

@@ -1,17 +1,38 @@
-From 7f5c5ea6b79a29f4aba0da473d90f3d72e127c60 Mon Sep 17 00:00:00 2001
+From 45343f38309742664e1674ef75e4259b4ba2b95a Mon Sep 17 00:00:00 2001
 From: Tung Huynh <tung75605@gmail.com>
-Date: Tue, 5 Dec 2023 21:21:33 -0800
-Subject: [PATCH 1/2] add debug messages
+Date: Tue, 5 Dec 2023 23:30:15 -0800
+Subject: [PATCH] add debug messages
 
 ---
- modules/video_output/win32/direct3d11.c | 10 +++++++++-
- 1 file changed, 9 insertions(+), 1 deletion(-)
+ modules/video_output/win32/direct3d11.c | 15 ++++++++++++++-
+ 1 file changed, 14 insertions(+), 1 deletion(-)
 
 diff --git a/modules/video_output/win32/direct3d11.c b/modules/video_output/win32/direct3d11.c
-index 06aeddeff8..1e5e9effe8 100644
+index 06aeddeff8..0dd4fc2327 100644
 --- a/modules/video_output/win32/direct3d11.c
 +++ b/modules/video_output/win32/direct3d11.c
-@@ -1453,6 +1453,7 @@ static bool BogusZeroCopy(const vout_display_t *vd)
+@@ -950,9 +950,11 @@ static void Manage(vout_display_t *vd)
+ 
+ static void CallUpdateRects(vout_display_t *vd)
+ {
++    msg_Dbg(vd, "Entering CallUpdateRects");
+     vout_display_sys_t *sys = vd->sys;
+     if (sys->scaleProc && D3D11_UpscalerUsed(sys->scaleProc))
+     {
++        msg_Dbg(vd, "Entering Upscaler resize. Impossible!");
+         D3D11_UpscalerGetSize(sys->scaleProc, &sys->quad_fmt.i_width, &sys->quad_fmt.i_height);
+ 
+         sys->quad_fmt.i_x_offset       = 0;
+@@ -970,6 +972,8 @@ static void CallUpdateRects(vout_display_t *vd)
+     {
+         UpdateRects(vd, NULL, true);
+     }
++
++    msg_Dbg(vd, "Exiting CallUpdateRects");
+ }
+ 
+ static void Prepare(vout_display_t *vd, picture_t *picture, subpicture_t *subpicture)
+@@ -1453,6 +1457,7 @@ static bool BogusZeroCopy(const vout_display_t *vd)
  static void InitScaleProcessor(vout_display_t *vd)
  {
      vout_display_sys_t *sys = vd->sys;
@@ -19,7 +40,7 @@ index 06aeddeff8..1e5e9effe8 100644
      if (sys->upscaleMode != upscale_VideoProcessor && sys->upscaleMode != upscale_SuperResolution)
          return;
  
-@@ -1462,7 +1463,7 @@ static void InitScaleProcessor(vout_display_t *vd)
+@@ -1462,7 +1467,7 @@ static void InitScaleProcessor(vout_display_t *vd)
      if (sys->scaleProc == NULL)
          sys->upscaleMode = upscale_LinearSampler;
  
@@ -28,7 +49,7 @@ index 06aeddeff8..1e5e9effe8 100644
  }
  
  static int Direct3D11Open(vout_display_t *vd, bool external_device)
-@@ -1565,10 +1566,12 @@ static int Direct3D11Open(vout_display_t *vd, bool external_device)
+@@ -1565,10 +1570,12 @@ static int Direct3D11Open(vout_display_t *vd, bool external_device)
  
      video_format_Init(&sys->quad_fmt, vd->source.i_chroma);
      video_format_Copy(&sys->quad_fmt, &vd->source);
@@ -41,7 +62,7 @@ index 06aeddeff8..1e5e9effe8 100644
  
      sys->legacy_shader = sys->d3d_dev.feature_level < D3D_FEATURE_LEVEL_10_0 ||
              (sys->scaleProc == NULL && !CanUseTextureArray(vd)) ||
-@@ -1694,6 +1697,7 @@ static int SetupOutputFormat(vout_display_t *vd, video_format_t *fmt)
+@@ -1694,6 +1701,7 @@ static int SetupOutputFormat(vout_display_t *vd, video_format_t *fmt)
          return VLC_EGENERIC;
      }
  
@@ -49,7 +70,7 @@ index 06aeddeff8..1e5e9effe8 100644
      return VLC_SUCCESS;
  }
  
-@@ -1741,6 +1745,7 @@ static void UpdatePicQuadPosition(vout_display_t *vd)
+@@ -1741,6 +1749,7 @@ static void UpdatePicQuadPosition(vout_display_t *vd)
     TODO : seperate out into smaller functions like createshaders */
  static int Direct3D11CreateFormatResources(vout_display_t *vd, const video_format_t *fmt)
  {
@@ -57,7 +78,7 @@ index 06aeddeff8..1e5e9effe8 100644
      vout_display_sys_t *sys = vd->sys;
      HRESULT hr;
  
-@@ -1754,6 +1759,7 @@ static int Direct3D11CreateFormatResources(vout_display_t *vd, const video_forma
+@@ -1754,10 +1763,12 @@ static int Direct3D11CreateFormatResources(vout_display_t *vd, const video_forma
          return VLC_EGENERIC;
      }
  
@@ -65,7 +86,12 @@ index 06aeddeff8..1e5e9effe8 100644
      sys->picQuad.i_width  = fmt->i_width;
      sys->picQuad.i_height = fmt->i_height;
  
-@@ -1788,6 +1794,7 @@ static int Direct3D11CreateFormatResources(vout_display_t *vd, const video_forma
+     CallUpdateRects(vd);
++    msg_Dbg(vd, "Updated rects");
+ 
+ #ifdef HAVE_ID3D11VIDEODECODER
+     if (!is_d3d11_opaque(fmt->i_chroma) || sys->legacy_shader)
+@@ -1788,6 +1799,7 @@ static int Direct3D11CreateFormatResources(vout_display_t *vd, const video_forma
  #endif
  
      vd->info.is_slow = !is_d3d11_opaque(fmt->i_chroma) && sys->picQuad.formatInfo->formatTexture != DXGI_FORMAT_UNKNOWN;
@@ -73,7 +99,7 @@ index 06aeddeff8..1e5e9effe8 100644
      return VLC_SUCCESS;
  }
  
-@@ -1830,6 +1837,7 @@ error:
+@@ -1830,6 +1842,7 @@ error:
  
  static int Direct3D11CreateGenericResources(vout_display_t *vd)
  {

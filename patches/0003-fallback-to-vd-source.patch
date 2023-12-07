@@ -1,7 +1,7 @@
 From 13835733a3a6b7b53127d2db81ebab5f2510a426 Mon Sep 17 00:00:00 2001
 From: Tung Huynh <tung75605@gmail.com>
 Date: Wed, 6 Dec 2023 15:24:07 -0800
-Subject: [PATCH 3/3] fallback to vd->source
+Subject: [PATCH 3/4] fallback to vd->source
 
 ---
  modules/video_output/win32/common.c | 5 +++++

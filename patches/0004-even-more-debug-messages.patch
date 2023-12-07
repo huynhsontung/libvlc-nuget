@@ -1,0 +1,73 @@
+From c39eaf3634caa5159effff7e2bab31ad9cd2bcf1 Mon Sep 17 00:00:00 2001
+From: Tung Huynh <tung75605@gmail.com>
+Date: Wed, 6 Dec 2023 21:08:21 -0800
+Subject: [PATCH 4/4] even more debug messages
+
+---
+ modules/video_output/win32/common.c     | 2 ++
+ modules/video_output/win32/direct3d11.c | 5 +++++
+ 2 files changed, 7 insertions(+)
+
+diff --git a/modules/video_output/win32/common.c b/modules/video_output/win32/common.c
+index c32d9c4171..411f951a2e 100644
+--- a/modules/video_output/win32/common.c
++++ b/modules/video_output/win32/common.c
+@@ -80,6 +80,7 @@ static unsigned int GetPictureHeight(const vout_display_t *vd)
+ int CommonInit(vout_display_t *vd)
+ {
+     vout_display_sys_t *sys = vd->sys;
++    msg_Dbg(vd, "sys address in CommonInit: %p", sys);
+ 
+     sys->hwnd      = NULL;
+     sys->hvideownd = NULL;
+@@ -89,6 +90,7 @@ int CommonInit(vout_display_t *vd)
+     sys->src_fmt   = &vd->source;
+     sys->is_first_display = true;
+     sys->is_on_top        = false;
++    msg_Dbg(vd, "sys->src_fmt initialized to: %p", sys->src_fmt);
+ 
+     sys->pf_GetPictureWidth  = GetPictureWidth;
+     sys->pf_GetPictureHeight = GetPictureHeight;
+diff --git a/modules/video_output/win32/direct3d11.c b/modules/video_output/win32/direct3d11.c
+index 0dd4fc2327..e8f831b539 100644
+--- a/modules/video_output/win32/direct3d11.c
++++ b/modules/video_output/win32/direct3d11.c
+@@ -304,9 +304,11 @@ static int Open(vlc_object_t *object)
+         return ret;
+ #endif
+ 
++    msg_Dbg(vd, "sys address before CommonInit: %p", &sys->sys);
+     if (!external_device && CommonInit(vd) != VLC_SUCCESS)
+         goto error;
+ 
++    msg_Dbg(vd, "sys->sys.src_fmt after CommonInit/before Direct3D11Open: %p", sys->sys.src_fmt);
+     vd->sys->sys.pf_GetPictureWidth  = GetPictureWidth;
+     vd->sys->sys.pf_GetPictureHeight = GetPictureHeight;
+ 
+@@ -1543,6 +1545,7 @@ static int Direct3D11Open(vout_display_t *vd, bool external_device)
+ 
+     video_format_t fmt;
+     video_format_Copy(&fmt, &vd->source);
++    msg_Dbg(vd, "sys->sys.src_fmt before entering SetupOutputFormat: %p", sys->sys.src_fmt);
+     int err = SetupOutputFormat(vd, &fmt);
+     if (err != VLC_SUCCESS)
+     {
+@@ -1696,6 +1699,7 @@ static int SetupOutputFormat(vout_display_t *vd, video_format_t *fmt)
+ 
+     InitScaleProcessor(vd);
+ 
++    msg_Dbg(vd, "sys->sys.src_fmt before entering Direct3D11CreateFormatResources: %p", sys->sys.src_fmt);
+     if (Direct3D11CreateFormatResources(vd, fmt)) {
+         msg_Err(vd, "Failed to allocate format resources");
+         return VLC_EGENERIC;
+@@ -1767,6 +1771,7 @@ static int Direct3D11CreateFormatResources(vout_display_t *vd, const video_forma
+     sys->picQuad.i_width  = fmt->i_width;
+     sys->picQuad.i_height = fmt->i_height;
+ 
++    msg_Dbg(vd, "sys->sys.src_fmt before entering CallUpdateRects: %p", sys->sys.src_fmt);
+     CallUpdateRects(vd);
+     msg_Dbg(vd, "Updated rects");
+ 
+-- 
+2.42.0.windows.2
+

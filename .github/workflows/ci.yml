@@ -15,7 +15,7 @@ jobs:
   libvlc:
     runs-on: ubuntu-latest
     container:
-      image: huynhsontung/vlc-debian-llvm-ucrt:llvm17
+      image: registry.videolan.org/vlc-debian-llvm-ucrt:20240212151604
       options: -u root
     strategy:
       matrix:

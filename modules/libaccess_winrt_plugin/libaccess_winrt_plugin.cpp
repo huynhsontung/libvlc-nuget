@@ -46,13 +46,6 @@ namespace
 		return true;
 	}
 
-	/*****************************************************************************
-	* Local prototypes
-	*****************************************************************************/
-
-	/**
-	 * Handles the file opening
-	 */
 	IAsyncAction open_file_from_path_async(access_sys_t* p_sys, const hstring& path)
 	{
 		auto file = co_await StorageFile::GetFileFromPathAsync(path);
@@ -238,7 +231,6 @@ int Open(vlc_object_t* object)
 	if (p_sys == nullptr)
 		return VLC_EGENERIC;
 
-	p_sys->i_pos = 0;
 	if (pf_open(p_sys, access_token) != VLC_SUCCESS) {
 		OutputDebugStringW(L"Error opening file with Path");
 		Close(object);

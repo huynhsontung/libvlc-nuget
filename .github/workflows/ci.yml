@@ -63,7 +63,7 @@ jobs:
     strategy:
       matrix:
         arch: [x64, x86, arm64]
-    runs-on: windows
+    runs-on: windows-latest
     steps:
       - name: Checkout
         uses: actions/checkout@v4

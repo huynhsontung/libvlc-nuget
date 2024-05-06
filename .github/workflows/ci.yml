@@ -68,25 +68,25 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
         with:
+          repository: huynhsontung/libvlc-winrt-plugins
           submodules: true
       - name: Add msbuild to PATH
         uses: microsoft/setup-msbuild@v2
       - name: Build
-        working-directory: modules
         run: msbuild modules.sln -p:Configuration=Release -p:Platform=${{ matrix.arch }}
       - name: Upload build
         if: matrix.arch != 'x86'
         uses: actions/upload-artifact@v4
         with:
           name: libvlc-uwp-access-build-${{ matrix.arch }}
-          path: modules/${{ matrix.arch }}/Release/libaccess_winrt_plugin
+          path: ${{ matrix.arch }}/Release/libaccess_winrt_plugin
           if-no-files-found: error
       - name: Upload build x86
         if: matrix.arch == 'x86'
         uses: actions/upload-artifact@v4
         with:
           name: libvlc-uwp-access-build-${{ matrix.arch }}
-          path: modules/Release/libaccess_winrt_plugin
+          path: Release/libaccess_winrt_plugin
           if-no-files-found: error
   
   UWP_NuGet:

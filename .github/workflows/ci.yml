@@ -59,45 +59,40 @@ jobs:
           path: ${{ matrix.short-arch }}-uwp/vlc-${{ env.VLC_VERSION }}-*.7z
           if-no-files-found: error
 
-  UWP_access_v3:
+  UWP_access:
     strategy:
       matrix:
         arch: [x64, x86, arm64]
-    runs-on: windows-2019
+    runs-on: windows-latest
     steps:
-      - name: Checkout libvlc uwp access module code
-        shell: bash
-        run: |
-          git clone --depth 1 https://github.com/huynhsontung/vlc-winrt.git && cd vlc-winrt
-          mkdir -p libvlc/Universal/vlc-${{ matrix.arch }}/Release
-      - name: Download VLC headers
-        run: Invoke-WebRequest -Uri "https://code.videolan.org/videolan/vlc/-/archive/3.0.x/vlc-3.0.x.zip" -OutFile "vlc-3.0.x.zip"
-      - name: Extract LibVLC
-        shell: bash
-        run: | 
-          7z x vlc-3.0.x.zip -ovlc
-          mv vlc/vlc-3.0.x/include vlc-winrt/libvlc/Universal/vlc-${{ matrix.arch }}/Release
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          repository: huynhsontung/libvlc-winrt-plugins
+          submodules: true
       - name: Add msbuild to PATH
         uses: microsoft/setup-msbuild@v2
-      - name: MSBuild x64/ARM64
-        if: matrix.arch != 'x86'
-        working-directory: vlc-winrt/modules/libaccess_winrt_plugin.UWP
-        run: msbuild libaccess_winrt_plugin.UWP.vcxproj /p:Configuration=Release /p:Platform=${{ matrix.arch }}
-      - name: MSBuild x86
-        if: matrix.arch == 'x86'
-        working-directory: vlc-winrt/modules/libaccess_winrt_plugin.UWP
-        run: msbuild libaccess_winrt_plugin.UWP.vcxproj /p:Configuration=Release /p:Platform=Win32
+      - name: Build
+        run: msbuild modules.sln -p:Configuration=Release -p:Platform=${{ matrix.arch }}
       - name: Upload build
+        if: matrix.arch != 'x86'
         uses: actions/upload-artifact@v4
         with:
           name: libvlc-uwp-access-build-${{ matrix.arch }}
-          path: vlc-winrt/modules/libaccess_winrt_plugin.UWP/Release/libaccess_winrt_plugin.UWP
+          path: ${{ matrix.arch }}/Release/libaccess_winrt_plugin
+          if-no-files-found: error
+      - name: Upload build x86
+        if: matrix.arch == 'x86'
+        uses: actions/upload-artifact@v4
+        with:
+          name: libvlc-uwp-access-build-${{ matrix.arch }}
+          path: Release/libaccess_winrt_plugin
           if-no-files-found: error
   
   UWP_NuGet:
     runs-on: ubuntu-latest
     needs:
-      - UWP_access_v3
+      - UWP_access
       - libvlc
     steps:
       - uses: actions/checkout@v4

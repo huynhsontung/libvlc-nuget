@@ -38,11 +38,30 @@ struct access_sys_t
 
 namespace
 {
-	bool is_token_valid(const hstring& future_access_token) {
-		// TODO: validate token
-		// auto charBegin = future_access_token[0];
-		// auto charEnd = future_access_token[future_access_token.size() - 1];
-		// return !((charBegin != '{') || ((charEnd != '}') || future_access_token->Length() < 32));
+	/* Check if token is a valid GUID */
+	bool is_token_valid(const hstring& access_token) {
+		// GUID have fixed length
+		if (access_token.size() != 36)
+			return false;
+
+		for (uint32_t i = 0; i < access_token.size(); ++i)
+		{
+			const auto wc = access_token[i];
+
+			if (i == 8 || i == 13 || i == 18 || i == 23)
+			{
+				// Check hyphens are at the correct positions (8 13 18 23)
+				if (wc != '-')
+					return false;
+			}
+			else
+			{
+				// Other characters must be valid hex
+				if (!iswxdigit(wc))
+					return false;
+			}
+		}
+
 		return true;
 	}
 
@@ -244,7 +263,6 @@ int Open(vlc_object_t* object)
 	return VLC_SUCCESS;
 }
 
-/* */
 void Close(vlc_object_t* object)
 {
 	stream_t* access = reinterpret_cast<stream_t*>(object);

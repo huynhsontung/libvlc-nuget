@@ -145,14 +145,14 @@ index 9c0841c87d..598e1ebf35 100644
      uint64_t         first_task;          // The next sync point to be synchronized.
      async_task_t     *tasks;              // The async encoding tasks.
 +    fifo_t           packets;             // FIFO of queued packets
-     vlc_tick_t       offset_pts;          // The pts of the first frame, to avoid conversion overflow.
-     vlc_tick_t       last_dts;            // The dts of the last frame, to interpolate over buggy dts
+     mtime_t          offset_pts;          // The pts of the first frame, to avoid conversion overflow.
+     mtime_t          last_dts;            // The dts of the last frame, to interpolate over buggy dts
 +    picture_pool_t   *input_pool;         // pool of pictures to feed the decoder
 +                                          //  as it doesn't like constantly changing buffers
  };
  
  static block_t *Encode(encoder_t *, picture_t *);
-@@ -297,43 +313,16 @@ static inline uint64_t qsv_mtime_to_timestamp(vlc_tick_t vlc_ts)
+@@ -297,43 +313,16 @@ static inline uint64_t qsv_mtime_to_timestamp(mtime_t vlc_ts)
      return vlc_ts / UINT64_C(100) * UINT64_C(9);
  }
  

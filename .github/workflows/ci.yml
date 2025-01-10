@@ -8,7 +8,7 @@ on:
   pull_request:
 
 env:
-  VLC_VERSION: 3.0.20
+  VLC_VERSION: 3.0.21
   UWP_LIBVLC_BUILD_FLAGS: -z -r -u -w
 
 jobs:
@@ -45,6 +45,7 @@ jobs:
           git config --global user.email "cone@example.com"
           git config --global user.name "Cony Cone"
           git am -3 ../patches/*.patch
+          git am -3 ../patches/huynhsontung/*.patch
           if [ $? -ne 0 ]; then
             git am --abort
             echo "Applying the patches failed, aborting git-am"
@@ -109,7 +110,7 @@ jobs:
       - name: Download and extract UWP builds
         shell: bash
         run: |
-          7z x libvlc-arm64/vlc-$VLC_VERSION-win32.7z -oarm64/vlc/winarm64-uwp -y  
+          7z x libvlc-arm64/vlc-$VLC_VERSION-win64.7z -oarm64/vlc/winarm64-uwp -y  
 
           7z x libvlc-x86/vlc-$VLC_VERSION-win32.7z -ox86/vlc/win32-uwp -y
 

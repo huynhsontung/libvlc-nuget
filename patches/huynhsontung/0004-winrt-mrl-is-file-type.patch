@@ -1,14 +1,14 @@
-From 5637464d8f851a965dce82b55b549b74c127d910 Mon Sep 17 00:00:00 2001
+From 5db99262ebb3bff7961f21c0b58c8ccfcdaf926e Mon Sep 17 00:00:00 2001
 From: Tung Huynh <tung75605@gmail.com>
 Date: Tue, 19 Dec 2023 17:33:57 -0800
-Subject: [PATCH] winrt mrl is file type
+Subject: [PATCH 4/4] winrt mrl is file type
 
 ---
  src/input/item.c | 1 +
  1 file changed, 1 insertion(+)
 
 diff --git a/src/input/item.c b/src/input/item.c
-index 9257e8df42..a6053c1924 100644
+index 9257e8df..a6053c19 100644
 --- a/src/input/item.c
 +++ b/src/input/item.c
 @@ -1216,6 +1216,7 @@ static int GuessType( const input_item_t *p_item, bool *p_net )
@@ -20,5 +20,5 @@ index 9257e8df42..a6053c1924 100644
  
  #ifndef NDEBUG
 -- 
-2.42.0.windows.2
+2.20.1
 

@@ -1,18 +1,18 @@
-From 44c65d47b37fff384591979847cf3b2bf6284b4b Mon Sep 17 00:00:00 2001
+From a57f169af57d78ba42592c5d79b395d30b5ec1fa Mon Sep 17 00:00:00 2001
 From: Tung Huynh <tung75605@gmail.com>
 Date: Fri, 8 Dec 2023 02:02:58 -0800
-Subject: [PATCH] remove unsupported mstackrealign flag
+Subject: [PATCH 3/4] remove unsupported mstackrealign flag
 
 ---
  contrib/src/flac/rules.mak | 1 -
- contrib/src/vpx/rules.mak  | 2 --
- 2 files changed, 3 deletions(-)
+ contrib/src/vpx/rules.mak  | 1 -
+ 2 files changed, 2 deletions(-)
 
 diff --git a/contrib/src/flac/rules.mak b/contrib/src/flac/rules.mak
-index 1933b0d242..82371a64e8 100644
+index 0fb02717..bff0fa5b 100644
 --- a/contrib/src/flac/rules.mak
 +++ b/contrib/src/flac/rules.mak
-@@ -50,7 +50,6 @@ endif
+@@ -51,7 +51,6 @@ endif
  
  FLAC_CFLAGS := $(CFLAGS)
  ifdef HAVE_WIN32
@@ -21,18 +21,17 @@ index 1933b0d242..82371a64e8 100644
  endif
  
 diff --git a/contrib/src/vpx/rules.mak b/contrib/src/vpx/rules.mak
-index 37f23ca17e..e6ca08aa81 100644
+index 263f432e..c33abaff 100644
 --- a/contrib/src/vpx/rules.mak
 +++ b/contrib/src/vpx/rules.mak
-@@ -123,8 +123,6 @@ endif
- 
+@@ -127,7 +127,6 @@ endif
  ifndef HAVE_WIN32
  VPX_CONF += --enable-pic
--else
+ else
 -VPX_CONF += --extra-cflags="-mstackrealign"
- endif
- ifdef HAVE_DARWIN_OS
- VPX_CONF += --enable-vp8-decoder --disable-tools
+ ifeq ($(ARCH),arm)
+ # As of libvpx 1.14.0 we have to explicitly disable runtime CPU detection for Windows armv7
+ VPX_CONF += --disable-runtime-cpu-detect
 -- 
-2.42.0.windows.2
+2.20.1
 

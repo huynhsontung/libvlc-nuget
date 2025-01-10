@@ -45,6 +45,7 @@ jobs:
           git config --global user.email "cone@example.com"
           git config --global user.name "Cony Cone"
           git am -3 ../patches/*.patch
+          git am -3 ../patches/huynhsontung/*.patch
           if [ $? -ne 0 ]; then
             git am --abort
             echo "Applying the patches failed, aborting git-am"

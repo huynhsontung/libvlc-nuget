@@ -1,7 +1,7 @@
-From 198233943f4d0a2ed873692ffea2e19a8d89c05a Mon Sep 17 00:00:00 2001
+From 7add3e5c9226829f2fc033a2d5efe355f5c56b40 Mon Sep 17 00:00:00 2001
 From: Tung Huynh <tung75605@gmail.com>
 Date: Wed, 6 Dec 2023 23:10:21 -0800
-Subject: [PATCH] direct3d11: fix uninitialized src_fmt when render with
+Subject: [PATCH 2/4] direct3d11: fix uninitialized src_fmt when render with
  external device
 
 ---
@@ -9,7 +9,7 @@ Subject: [PATCH] direct3d11: fix uninitialized src_fmt when render with
  1 file changed, 2 insertions(+), 2 deletions(-)
 
 diff --git a/modules/video_output/win32/common.c b/modules/video_output/win32/common.c
-index 83812826cc..4ee90a4b91 100644
+index 83812826..4ee90a4b 100644
 --- a/modules/video_output/win32/common.c
 +++ b/modules/video_output/win32/common.c
 @@ -119,8 +119,6 @@ int CommonInit(vout_display_t *vd)
@@ -31,5 +31,5 @@ index 83812826cc..4ee90a4b91 100644
  #define rect_src sys->rect_src
  #define rect_src_clipped sys->rect_src_clipped
 -- 
-2.42.0.windows.2
+2.20.1
 

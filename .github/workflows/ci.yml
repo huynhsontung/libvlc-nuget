@@ -98,9 +98,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: actions/download-artifact@v4
-      - uses: NuGet/setup-nuget@v2
-        with:
-          nuget-version: '5.x'
+      - uses: actions/setup-dotnet@v4
       - name: Create NuGet folders
         shell: bash
         run: |
@@ -141,7 +139,7 @@ jobs:
         run: echo "tag=$(date +'%y%m%d%H%M')" >> "$GITHUB_OUTPUT"
       - name: Package NuGet
         shell: bash
-        run: nuget pack VideoLAN.LibVLC.UWP.nuspec -Version $VLC_VERSION-${{ steps.get-tag.outputs.tag }}+$(printf '%.10s' $GITHUB_SHA)
+        run: dotnet pack VideoLAN.LibVLC.UWP.nuspec -Version $VLC_VERSION-${{ steps.get-tag.outputs.tag }}+$(printf '%.10s' $GITHUB_SHA)
       - name: Upload NuGet package
         uses: actions/upload-artifact@v4
         with:
@@ -149,4 +147,4 @@ jobs:
           path: '*.nupkg'
       - name: Push to Nuget
         if: github.event_name == 'push'
-        run: nuget push *.nupkg -Source "https://api.nuget.org/v3/index.json" -ApiKey ${{ secrets.NUGET_TOKEN }} -SkipDuplicate
+        run: dotnet nuget push *.nupkg -Source "https://api.nuget.org/v3/index.json" -ApiKey ${{ secrets.NUGET_TOKEN }} -SkipDuplicate

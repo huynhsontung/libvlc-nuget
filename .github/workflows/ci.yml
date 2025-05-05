@@ -139,7 +139,7 @@ jobs:
         run: echo "tag=$(date +'%y%m%d%H%M')" >> "$GITHUB_OUTPUT"
       - name: Package NuGet
         shell: bash
-        run: dotnet pack VideoLAN.LibVLC.UWP.nuspec -Version $VLC_VERSION-${{ steps.get-tag.outputs.tag }}+$(printf '%.10s' $GITHUB_SHA)
+        run: dotnet pack VideoLAN.LibVLC.UWP.csproj -p:Version=$VLC_VERSION-${{ steps.get-tag.outputs.tag }}+$(printf '%.10s' $GITHUB_SHA) -o .
       - name: Upload NuGet package
         uses: actions/upload-artifact@v4
         with:

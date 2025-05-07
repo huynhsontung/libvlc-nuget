@@ -1,0 +1,38 @@
+From 2ea7a7245bcd2aa661b0700a0fb4e274aa7cb358 Mon Sep 17 00:00:00 2001
+From: Tung Huynh <tung75605@gmail.com>
+Date: Wed, 7 May 2025 00:28:22 -0700
+Subject: [PATCH 3/3] get device adapter desc before getting driver version
+
+---
+ modules/video_output/win32/direct3d11.c | 14 ++++++++++++++
+ 1 file changed, 14 insertions(+)
+
+diff --git a/modules/video_output/win32/direct3d11.c b/modules/video_output/win32/direct3d11.c
+index f09e7ea27f..426d273cf2 100644
+--- a/modules/video_output/win32/direct3d11.c
++++ b/modules/video_output/win32/direct3d11.c
+@@ -1736,7 +1736,21 @@ static int Direct3D11Open(vout_display_t *vd, bool external_device)
+ #endif
+     }
+     else
++    {
++        HRESULT hr = S_OK;
++        IDXGIAdapter *adap = D3D11DeviceAdapter(sys->d3d_dev.d3ddevice);
++        if (adap == NULL)
++            hr = E_FAIL;
++        else
++        {
++            hr = IDXGIAdapter_GetDesc(adap, &sys->d3d_dev.adapterDesc);
++            IDXGIAdapter_Release(adap);
++        }
++        if (hr)
++            msg_Warn(vd, "can't get adapter description");
++
+         D3D11_GetDriverVersion( vd, &sys->d3d_dev );
++    }
+ 
+     IDXGISwapChain_QueryInterface( sys->dxgiswapChain, &IID_IDXGISwapChain4, (void **)&sys->dxgiswapChain4);
+ 
+-- 
+2.49.0.windows.1
+

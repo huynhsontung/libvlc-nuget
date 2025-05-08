@@ -1,20 +1,22 @@
-From 2ea7a7245bcd2aa661b0700a0fb4e274aa7cb358 Mon Sep 17 00:00:00 2001
+From ea2a46221c9a8fc9bbb18d911f9400f48f0307b7 Mon Sep 17 00:00:00 2001
 From: Tung Huynh <tung75605@gmail.com>
-Date: Wed, 7 May 2025 00:28:22 -0700
-Subject: [PATCH 3/3] get device adapter desc before getting driver version
+Date: Mon, 5 May 2025 00:54:01 -0700
+Subject: [PATCH] get driver version and adapter desc for external direct3d11
+ device
 
 ---
- modules/video_output/win32/direct3d11.c | 14 ++++++++++++++
- 1 file changed, 14 insertions(+)
+ modules/video_output/win32/direct3d11.c | 16 ++++++++++++++++
+ 1 file changed, 16 insertions(+)
 
 diff --git a/modules/video_output/win32/direct3d11.c b/modules/video_output/win32/direct3d11.c
-index f09e7ea27f..426d273cf2 100644
+index 73ccdf9375..620d3fba3f 100644
 --- a/modules/video_output/win32/direct3d11.c
 +++ b/modules/video_output/win32/direct3d11.c
-@@ -1736,7 +1736,21 @@ static int Direct3D11Open(vout_display_t *vd, bool external_device)
+@@ -1622,6 +1622,22 @@ static int Direct3D11Open(vout_display_t *vd, bool external_device)
+         }
  #endif
      }
-     else
++    else
 +    {
 +        HRESULT hr = S_OK;
 +        IDXGIAdapter *adap = D3D11DeviceAdapter(sys->d3d_dev.d3ddevice);
@@ -28,7 +30,7 @@ index f09e7ea27f..426d273cf2 100644
 +        if (hr)
 +            msg_Warn(vd, "can't get adapter description");
 +
-         D3D11_GetDriverVersion( vd, &sys->d3d_dev );
++        D3D11_GetDriverVersion( vd, &sys->d3d_dev );
 +    }
  
      IDXGISwapChain_QueryInterface( sys->dxgiswapChain, &IID_IDXGISwapChain4, (void **)&sys->dxgiswapChain4);

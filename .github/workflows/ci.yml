@@ -39,19 +39,18 @@ jobs:
         uses: actions/checkout@v4
         with:
           submodules: true
-      - name: Cache build dependencies
-        uses: actions/cache@v4
-        with:
-          key: libvlc-${{ matrix.arch }}-${{ hashFiles('.git/modules/vlc/HEAD') }}
-          path: |
-            ${{ matrix.short-arch }}-uwp
-            contrib
-            extras
-            vlc
-            !vlc/.git
+      # - name: Cache build dependencies
+      #   uses: actions/cache@v4
+      #   with:
+      #     key: libvlc-${{ matrix.arch }}-${{ hashFiles('.git/modules/vlc/ORIG_HEAD') }}
+      #     path: |
+      #       ${{ matrix.short-arch }}-uwp
+      #       contrib
+      #       extras
+      #       vlc
+      #       !vlc/.git
       - name: Apply patches
         run: |
-          git submodule update
           cd vlc
           git config --global user.email "cone@example.com"
           git config --global user.name "Cony Cone"
@@ -74,7 +73,6 @@ jobs:
         run: |
           rm -f ${{ matrix.short-arch }}-uwp/vlc-${{ env.VLC_VERSION }}-*.7z
           rm -f ${{ matrix.short-arch }}-uwp/vlc-${{ env.VLC_VERSION }}-*.zip
-          git submodule update
 
   UWP_access:
     strategy:

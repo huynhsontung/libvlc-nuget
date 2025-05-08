@@ -1,7 +1,7 @@
 From 17992fd1965af72ce4d3261ca0718afb7f0431ba Mon Sep 17 00:00:00 2001
 From: Tung Huynh <tung75605@gmail.com>
 Date: Tue, 6 May 2025 00:04:01 -0700
-Subject: [PATCH 2/4] add debug messages
+Subject: [PATCH 2/3] add debug messages
 
 ---
  modules/video_chroma/d3d11_fmt.c            | 4 ++++

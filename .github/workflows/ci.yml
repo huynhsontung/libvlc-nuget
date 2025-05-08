@@ -39,7 +39,7 @@ jobs:
         uses: actions/checkout@v4
         with:
           submodules: true
-      - name: Cache build dependencies and artifacts
+      - name: Cache build dependencies
         uses: actions/cache@v4
         with:
           key: libvlc-${{ matrix.arch }}-${{ hashFiles('.git/modules/vlc/HEAD') }}
@@ -67,6 +67,10 @@ jobs:
           name: libvlc-${{ matrix.arch }}
           path: ${{ matrix.short-arch }}-uwp/vlc-${{ env.VLC_VERSION }}-*.7z
           if-no-files-found: error
+      - name: Remove artifact before caching
+        run: |
+          rm -f ${{ matrix.short-arch }}-uwp/vlc-${{ env.VLC_VERSION }}-*.7z
+          rm -f ${{ matrix.short-arch }}-uwp/vlc-${{ env.VLC_VERSION }}-*.zip
 
   UWP_access:
     strategy:

@@ -39,6 +39,14 @@ jobs:
         uses: actions/checkout@v4
         with:
           submodules: true
+      - name: Cache LibVLC build dependencies and artifacts
+        uses: actions/cache@v4
+        with:
+          key: ${{ runner.os }}-libvlc-${{ matrix.arch }}-${{ hashFiles('.git/modules/vlc/HEAD') }}
+          path: |
+            ${{ matrix.short-arch }}-uwp
+            contrib
+            extras
       - name: Apply patches
         run: |
           cd vlc

@@ -9,7 +9,7 @@ on:
 
 env:
   VLC_VERSION: 3.0.21
-  UWP_LIBVLC_BUILD_FLAGS: -z -r -u -w
+  UWP_LIBVLC_BUILD_FLAGS: -z -r -u -w -d
 
 jobs:
   libvlc:

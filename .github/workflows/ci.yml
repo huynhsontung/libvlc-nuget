@@ -39,19 +39,23 @@ jobs:
         uses: actions/checkout@v4
         with:
           submodules: true
-      # - name: Cache build dependencies
-      #   uses: actions/cache@v4
-      #   with:
-      #     key: libvlc-${{ matrix.arch }}-${{ hashFiles('.git/modules/vlc/ORIG_HEAD') }}
-      #     path: |
-      #       ${{ matrix.short-arch }}-uwp
-      #       contrib
-      #       extras
-      #       vlc
-      #       !vlc/.git
+      - name: Extract VLC submodule hash
+        id: extract-vlc-hash
+        working-directory: vlc
+        run: echo "hash=$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
+      - name: Cache build dependencies
+        uses: actions/cache@v4
+        with:
+          key: libvlc-${{ matrix.arch }}-${{ steps.extract-vlc-hash.outputs.hash }}
+          path: |
+            ${{ matrix.short-arch }}-uwp
+            contrib
+            extras
+            vlc
+            !vlc/.git
       - name: Apply patches
+        working-directory: vlc
         run: |
-          cd vlc
           git config --global user.email "cone@example.com"
           git config --global user.name "Cony Cone"
           git am -3 ../patches/*.patch
@@ -73,6 +77,8 @@ jobs:
         run: |
           rm -f ${{ matrix.short-arch }}-uwp/vlc-${{ env.VLC_VERSION }}-*.7z
           rm -f ${{ matrix.short-arch }}-uwp/vlc-${{ env.VLC_VERSION }}-*.zip
+          cd vlc
+          git reset --hard ${{ steps.extract-vlc-hash.outputs.hash }}
 
   UWP_access:
     strategy:

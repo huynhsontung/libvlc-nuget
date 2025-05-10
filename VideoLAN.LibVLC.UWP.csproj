@@ -1,0 +1,36 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <!-- General Package Properties -->
+    <PackageId>LibVLC.UWP</PackageId>
+    <Title>LibVLC.UWP</Title>
+    <Version>1.0.0</Version>
+    <Authors>VideoLAN,huynhsontung</Authors>
+    <RequireLicenseAcceptance>false</RequireLicenseAcceptance>
+    <Summary>LibVLC is a modular multimedia framework</Summary>
+    <Description>A GPL fork of VideoLAN.LibVLC.UWP package.</Description>
+    <PackageTags>libvlc;vlc;videolan;native;c/c++;video;audio;player;media;mediaplayer;codec;ffmpeg;xamarin;graphics;ios;android;linux;windows;macos;cross-platform</PackageTags>
+    <PackageProjectUrl>https://github.com/huynhsontung/libvlc-nuget</PackageProjectUrl>
+    <PackageLicenseExpression>GPL-2.0-or-later</PackageLicenseExpression>
+    <PackageIcon>icon.png</PackageIcon>
+
+    <!-- Build specific properties -->
+    <TargetFrameworks>uap10.0.18362</TargetFrameworks>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild> <!-- Automatically create package on build -->
+    <IncludeBuildOutput>false</IncludeBuildOutput> <!-- Don't include the build output (DLLs) if this is just a content package -->
+  </PropertyGroup>
+
+  <ItemGroup>
+    <!-- Include the icon file in the package -->
+    <None Include="icon.png" Pack="true" PackagePath="" />
+
+    <!-- Include the targets file -->
+    <None Include="build\LibVLC.UWP.targets" Pack="true" PackagePath="build\" />
+
+    <!-- Include native assets for different architectures -->
+    <Content Include="build\win10-x86\native\**" Pack="true" PackagePath="build\win10-x86" />
+    <Content Include="build\win10-x64\native\**" Pack="true" PackagePath="build\win10-x64" />
+    <Content Include="build\win10-arm64\native\**" Pack="true" PackagePath="build\win10-arm64" />
+  </ItemGroup>
+
+</Project>

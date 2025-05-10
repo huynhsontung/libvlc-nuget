@@ -39,9 +39,22 @@ jobs:
         uses: actions/checkout@v4
         with:
           submodules: true
+      - name: Extract VLC submodule hash
+        id: extract-vlc-hash
+        working-directory: vlc
+        run: echo "hash=$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
+      - name: Cache build dependencies
+        uses: actions/cache@v4
+        with:
+          key: libvlc-${{ matrix.arch }}-${{ steps.extract-vlc-hash.outputs.hash }}
+          path: |
+            contrib
+            extras
+            vlc
+            !vlc/.git
       - name: Apply patches
+        working-directory: vlc
         run: |
-          cd vlc
           git config --global user.email "cone@example.com"
           git config --global user.name "Cony Cone"
           git am -3 ../patches/*.patch
@@ -59,6 +72,9 @@ jobs:
           name: libvlc-${{ matrix.arch }}
           path: ${{ matrix.short-arch }}-uwp/vlc-${{ env.VLC_VERSION }}-*.7z
           if-no-files-found: error
+      - name: Remove patches before caching
+        working-directory: vlc
+        run: git reset --hard ${{ steps.extract-vlc-hash.outputs.hash }}
 
   UWP_access:
     strategy:
@@ -98,9 +114,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: actions/download-artifact@v4
-      - uses: NuGet/setup-nuget@v2
-        with:
-          nuget-version: '5.x'
+      - uses: actions/setup-dotnet@v4
       - name: Create NuGet folders
         shell: bash
         run: |
@@ -141,7 +155,7 @@ jobs:
         run: echo "tag=$(date +'%y%m%d%H%M')" >> "$GITHUB_OUTPUT"
       - name: Package NuGet
         shell: bash
-        run: nuget pack VideoLAN.LibVLC.UWP.nuspec -Version $VLC_VERSION-${{ steps.get-tag.outputs.tag }}+$(printf '%.10s' $GITHUB_SHA)
+        run: dotnet pack VideoLAN.LibVLC.UWP.csproj -p:Version=$VLC_VERSION-${{ steps.get-tag.outputs.tag }}+$(printf '%.10s' $GITHUB_SHA) -o .
       - name: Upload NuGet package
         uses: actions/upload-artifact@v4
         with:
@@ -149,4 +163,4 @@ jobs:
           path: '*.nupkg'
       - name: Push to Nuget
         if: github.event_name == 'push'
-        run: nuget push *.nupkg -Source "https://api.nuget.org/v3/index.json" -ApiKey ${{ secrets.NUGET_TOKEN }} -SkipDuplicate
+        run: dotnet nuget push *.nupkg -Source "https://api.nuget.org/v3/index.json" -ApiKey ${{ secrets.NUGET_TOKEN }} -SkipDuplicate

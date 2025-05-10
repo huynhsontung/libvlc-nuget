@@ -163,4 +163,4 @@ jobs:
           path: '*.nupkg'
       - name: Push to Nuget
         if: github.event_name == 'push'
-        run: dotnet nuget push *.nupkg -Source "https://api.nuget.org/v3/index.json" -ApiKey ${{ secrets.NUGET_TOKEN }} -SkipDuplicate
+        run: dotnet nuget push *.nupkg --source "https://api.nuget.org/v3/index.json" --api-key ${{ secrets.NUGET_TOKEN }} --skip-duplicate

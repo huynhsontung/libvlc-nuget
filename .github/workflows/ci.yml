@@ -48,7 +48,6 @@ jobs:
         with:
           key: libvlc-${{ matrix.arch }}-${{ steps.extract-vlc-hash.outputs.hash }}
           path: |
-            ${{ matrix.short-arch }}-uwp
             contrib
             extras
             vlc
@@ -73,12 +72,9 @@ jobs:
           name: libvlc-${{ matrix.arch }}
           path: ${{ matrix.short-arch }}-uwp/vlc-${{ env.VLC_VERSION }}-*.7z
           if-no-files-found: error
-      - name: Remove artifact before caching
-        run: |
-          rm -f ${{ matrix.short-arch }}-uwp/vlc-${{ env.VLC_VERSION }}-*.7z
-          rm -f ${{ matrix.short-arch }}-uwp/vlc-${{ env.VLC_VERSION }}-*.zip
-          cd vlc
-          git reset --hard ${{ steps.extract-vlc-hash.outputs.hash }}
+      - name: Remove patches before caching
+        working-directory: vlc
+        run: git reset --hard ${{ steps.extract-vlc-hash.outputs.hash }}
 
   UWP_access:
     strategy:

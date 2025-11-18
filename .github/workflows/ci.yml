@@ -86,6 +86,7 @@ jobs:
         uses: actions/checkout@v4
         with:
           repository: huynhsontung/libvlc-winrt-plugins
+          ref: adjust-data-read
           submodules: true
       - name: Add msbuild to PATH
         uses: microsoft/setup-msbuild@v2

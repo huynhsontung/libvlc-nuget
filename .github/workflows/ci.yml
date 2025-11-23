@@ -8,12 +8,13 @@ on:
   pull_request:
 
 env:
-  VLC_VERSION: 3.0.21
   UWP_LIBVLC_BUILD_FLAGS: -z -r -u -w
 
 jobs:
   libvlc:
     runs-on: ubuntu-latest
+    outputs:
+      vlc_version: ${{ steps.get_vlc_version.outputs.version }}
     container:
       image: registry.videolan.org/vlc-debian-llvm-uwp:20220713124227
       options: -u root
@@ -39,6 +40,12 @@ jobs:
         uses: actions/checkout@v4
         with:
           submodules: true
+      - name: Extract VLC version
+        id: get_vlc_version
+        working-directory: vlc
+        run: |
+          ver=$(grep AC_INIT configure.ac | cut -d, -f2 | tr -d ' )')
+          echo "version=$ver" >> "$GITHUB_OUTPUT"
       - name: Extract VLC submodule hash
         id: extract-vlc-hash
         working-directory: vlc
@@ -70,7 +77,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: libvlc-${{ matrix.arch }}
-          path: ${{ matrix.short-arch }}-uwp/vlc-${{ env.VLC_VERSION }}-*.7z
+          path: ${{ matrix.short-arch }}-uwp/vlc-${{ steps.get_vlc_version.outputs.version }}-*.7z
           if-no-files-found: error
       - name: Remove patches before caching
         working-directory: vlc
@@ -111,6 +118,8 @@ jobs:
     needs:
       - UWP_access
       - libvlc
+    env:
+      VLC_VERSION: ${{ needs.libvlc.outputs.vlc_version }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/download-artifact@v4
@@ -124,7 +133,7 @@ jobs:
       - name: Download and extract UWP builds
         shell: bash
         run: |
-          7z x libvlc-arm64/vlc-$VLC_VERSION-win64.7z -oarm64/vlc/winarm64-uwp -y  
+          7z x libvlc-arm64/vlc-$VLC_VERSION-winarm64.7z -oarm64/vlc/winarm64-uwp -y  
 
           7z x libvlc-x86/vlc-$VLC_VERSION-win32.7z -ox86/vlc/win32-uwp -y
 

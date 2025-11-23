@@ -1,0 +1,26 @@
+From a2c3d7cb9da67468b765b4f42a2c07ca1f90bfd0 Mon Sep 17 00:00:00 2001
+From: Tung Huynh <31434093+huynhsontung@users.noreply.github.com>
+Date: Sat, 22 Nov 2025 20:45:33 -0800
+Subject: [PATCH] invoke appcontainer.pl
+
+---
+ extras/package/win32/build.sh | 3 +++
+ 1 file changed, 3 insertions(+)
+
+diff --git a/extras/package/win32/build.sh b/extras/package/win32/build.sh
+index c0339d86a3..e01f377a8d 100755
+--- a/extras/package/win32/build.sh
++++ b/extras/package/win32/build.sh
+@@ -371,6 +371,9 @@ elif [ "$INSTALLER" = "r" ]; then
+ make package-win32
+ elif [ "$INSTALLER" = "u" ]; then
+ make package-win32-release
++if [ ! -z "$WINSTORE" ]; then
++    find . \( -name "*.dll" -o -name "*.exe" \) -exec ../../patches/appcontainer.pl {} \;
++fi
+ sha512sum vlc-*-release.7z
+ elif [ ! -z "$INSTALL_PATH" ]; then
+ make package-win-install
+-- 
+2.48.1.windows.1
+

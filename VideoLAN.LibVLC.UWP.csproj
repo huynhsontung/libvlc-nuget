@@ -15,7 +15,7 @@
     <PackageIcon>icon.png</PackageIcon>
 
     <!-- Build specific properties -->
-    <TargetFrameworks>uap10.0.18362</TargetFrameworks>
+    <TargetFrameworks>uap10.0.26100</TargetFrameworks>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild> <!-- Automatically create package on build -->
     <IncludeBuildOutput>false</IncludeBuildOutput> <!-- Don't include the build output (DLLs) if this is just a content package -->
   </PropertyGroup>

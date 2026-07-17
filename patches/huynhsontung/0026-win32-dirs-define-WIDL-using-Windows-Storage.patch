@@ -1,0 +1,28 @@
+From eefb916f20a59e6a11803ca9fc9e8f0aa8a38a19 Mon Sep 17 00:00:00 2001
+From: Tung Huynh <tung75605@gmail.com>
+Date: Thu, 16 Jul 2026 21:50:32 -0700
+Subject: [PATCH] win32: dirs: define WIDL_using_Windows_Storage to fix UWP
+ build
+
+Added for libvlc tag 3.0.23, compiled with LLVM + UCRT (vlc-debian-llvm-ucrt).
+
+---
+ src/win32/dirs.c | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/src/win32/dirs.c b/src/win32/dirs.c
+index ef1718f3f3..ac0b5fdaac 100644
+--- a/src/win32/dirs.c
++++ b/src/win32/dirs.c
+@@ -48,6 +48,7 @@
+ #include <limits.h>
+ 
+ #if VLC_WINSTORE_APP
++#define WIDL_using_Windows_Storage
+ #include <winstring.h>
+ #include <windows.storage.h>
+ #include <roapi.h>
+-- 
+2.54.0.windows.1
+
+

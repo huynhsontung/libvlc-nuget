@@ -1,0 +1,37 @@
+From 3322c0e4ec3953f20e300464d1c7a8e0b1be2c56 Mon Sep 17 00:00:00 2001
+From: Tung Huynh <tung75605@gmail.com>
+Date: Thu, 16 Jul 2026 22:52:38 -0700
+Subject: [PATCH] build: fully disable npapi and nsis in package-win32
+
+Added for libvlc tag 3.0.23, compiled with LLVM + UCRT (vlc-debian-llvm-ucrt).
+
+---
+ extras/package/win32/package.mak | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/extras/package/win32/package.mak b/extras/package/win32/package.mak
+index b52acc697f..1dc5d64f76 100644
+--- a/extras/package/win32/package.mak
++++ b/extras/package/win32/package.mak
+@@ -94,7 +94,7 @@ package-win-npapi: build-npapi
+ 	mkdir -p "$(win32_destdir)/sdk/activex/"
+ 	cp $(top_builddir)/npapi-vlc/activex/README.TXT $(top_builddir)/npapi-vlc/share/test/test.html $(win32_destdir)/sdk/activex/
+ 
+-package-win-strip: package-win-common package-win-npapi
++package-win-strip: package-win-common
+ 	mkdir -p "$(win32_debugdir)"/
+ 	find $(win32_destdir) -type f \( -name '*$(LIBEXT)' -or -name '*$(EXEEXT)' \) | while read i; \
+ 	do if test -n "$$i" ; then \
+@@ -176,7 +176,7 @@ package-win32-debug-7zip: package-win-common
+ package-win32-cleanup:
+ 	rm -Rf $(win32_destdir) $(win32_debugdir) $(win32_xpi_destdir)
+ 
+-package-win32: package-win32-zip package-win32-7zip package-win32-exe package-win32-xpi
++package-win32: package-win32-zip package-win32-7zip
+ 
+ package-win32-debug: package-win32-debug-zip package-win32-debug-7zip
+ 
+-- 
+2.54.0.windows.1
+
+

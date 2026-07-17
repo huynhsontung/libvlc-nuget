@@ -8,14 +8,14 @@ on:
   pull_request:
 
 env:
-  VLC_VERSION: 3.0.21
+  VLC_VERSION: 3.0.23
   UWP_LIBVLC_BUILD_FLAGS: -z -r -u -w
 
 jobs:
   libvlc:
     runs-on: ubuntu-latest
     container:
-      image: registry.videolan.org/vlc-debian-llvm-uwp:20220713124227
+      image: registry.videolan.org/vlc-debian-llvm-ucrt:20260611225331
       options: -u root
     strategy:
       matrix:

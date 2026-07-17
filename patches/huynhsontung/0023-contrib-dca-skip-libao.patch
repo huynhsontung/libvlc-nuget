@@ -1,0 +1,27 @@
+From 08e52b025f9424020196def6e47c0b00afb266fc Mon Sep 17 00:00:00 2001
+From: Tung Huynh <tung75605@gmail.com>
+Date: Thu, 16 Jul 2026 09:32:14 -0700
+Subject: [PATCH] contrib: dca: do not build libao or src to fix UWP build
+
+Added for libvlc tag 3.0.23, compiled with LLVM + UCRT (vlc-debian-llvm-ucrt).
+
+---
+ contrib/src/dca/rules.mak | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/contrib/src/dca/rules.mak b/contrib/src/dca/rules.mak
+index 8e995a58e9..c76159c0cd 100644
+--- a/contrib/src/dca/rules.mak
++++ b/contrib/src/dca/rules.mak
+@@ -19,6 +19,7 @@ $(TARBALLS)/libdca-$(DCA_VERSION).tar.bz2:
+ 
+ libdca: libdca-$(DCA_VERSION).tar.bz2 .sum-dca
+ 	$(UNPACK)
++	sed -i.orig -e 's/src libao//g' -e 's/libao src//g' -e 's/src//g' -e 's/libao//g' $(UNPACK_DIR)/Makefile.am
+ 	$(UPDATE_AUTOCONFIG) && cd $(UNPACK_DIR)
+ 	$(call pkg_static,"./libdca/libdca.pc.in")
+ 	$(MOVE)
+-- 
+2.54.0.windows.1
+
+

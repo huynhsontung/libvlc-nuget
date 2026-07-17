@@ -1,0 +1,47 @@
+From feb1ea2122d3daa08efcda8978f1bb5f83fc1906 Mon Sep 17 00:00:00 2001
+From: Tung Huynh <tung75605@gmail.com>
+Date: Thu, 16 Jul 2026 22:34:19 -0700
+Subject: [PATCH] win32: winstore: cast pc_AudioVolume to void** to fix UWP
+ build
+
+Added for libvlc tag 3.0.23, compiled with LLVM + UCRT (vlc-debian-llvm-ucrt).
+
+---
+ modules/audio_output/winstore.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
+
+diff --git a/modules/audio_output/winstore.c b/modules/audio_output/winstore.c
+index 8366200344..7e12b2709d 100644
+--- a/modules/audio_output/winstore.c
++++ b/modules/audio_output/winstore.c
+@@ -294,7 +294,7 @@ static int VolumeSet(audio_output_t *aout, float vol)
+ 
+     aout_GainRequest(aout, sys->gain);
+ 
+-    hr = IAudioClient_GetService(sys->client, &IID_ISimpleAudioVolume, &pc_AudioVolume);
++    hr = IAudioClient_GetService(sys->client, &IID_ISimpleAudioVolume, (void**)&pc_AudioVolume);
+     if (FAILED(hr))
+     {
+         msg_Err(aout, "cannot get volume service (error 0x%lx)", hr);
+@@ -325,7 +325,7 @@ static int MuteSet(audio_output_t *aout, bool mute)
+     HRESULT hr;
+     ISimpleAudioVolume *pc_AudioVolume = NULL;
+ 
+-    hr = IAudioClient_GetService(sys->client, &IID_ISimpleAudioVolume, &pc_AudioVolume);
++    hr = IAudioClient_GetService(sys->client, &IID_ISimpleAudioVolume, (void**)&pc_AudioVolume);
+     if (FAILED(hr))
+     {
+         msg_Err(aout, "cannot get volume service (error 0x%lx)", hr);
+@@ -507,7 +507,7 @@ static int Start(audio_output_t *aout, audio_sample_format_t *restrict fmt)
+     {
+         ISimpleAudioVolume* pc_AudioVolume = NULL;
+ 
+-        hr = IAudioClient_GetService(sys->client, &IID_ISimpleAudioVolume, &pc_AudioVolume);
++        hr = IAudioClient_GetService(sys->client, &IID_ISimpleAudioVolume, (void**)&pc_AudioVolume);
+         if (FAILED(hr))
+         {
+             msg_Err(aout, "cannot get volume service (error 0x%lx)", hr);
+-- 
+2.54.0.windows.1
+
+

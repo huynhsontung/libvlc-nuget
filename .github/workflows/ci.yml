@@ -36,7 +36,7 @@ jobs:
       TRIPLET: ${{ matrix.host-arch }}-w64-mingw32
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
         with:
           submodules: true
       - name: Extract VLC submodule hash
@@ -44,7 +44,7 @@ jobs:
         working-directory: vlc
         run: echo "hash=$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
       - name: Cache build dependencies
-        uses: actions/cache@v4
+        uses: actions/cache@v6
         with:
           key: libvlc-${{ matrix.arch }}-${{ steps.extract-vlc-hash.outputs.hash }}
           path: |
@@ -67,7 +67,7 @@ jobs:
       - name: Build
         run: vlc/extras/package/win32/build.sh -c -a ${{ matrix.host-arch }} $UWP_LIBVLC_BUILD_FLAGS
       - name: Upload artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: libvlc-${{ matrix.arch }}
           path: ${{ matrix.short-arch }}-uwp/vlc-${{ env.VLC_VERSION }}-*.7z
@@ -83,38 +83,38 @@ jobs:
     runs-on: windows-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
         with:
           repository: huynhsontung/libvlc-winrt-plugins
           submodules: true
       - name: Add msbuild to PATH
-        uses: microsoft/setup-msbuild@v2
+        uses: microsoft/setup-msbuild@v3
       - name: Build
         run: msbuild modules.sln -p:Configuration=Release -p:Platform=${{ matrix.arch }}
       - name: Upload build
         if: matrix.arch != 'x86'
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: libvlc-uwp-access-build-${{ matrix.arch }}
           path: ${{ matrix.arch }}/Release/libaccess_winrt_plugin
           if-no-files-found: error
       - name: Upload build x86
         if: matrix.arch == 'x86'
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: libvlc-uwp-access-build-${{ matrix.arch }}
           path: Release/libaccess_winrt_plugin
           if-no-files-found: error
-  
+
   UWP_NuGet:
     runs-on: ubuntu-latest
     needs:
       - UWP_access
       - libvlc
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/download-artifact@v4
-      - uses: actions/setup-dotnet@v4
+      - uses: actions/checkout@v7
+      - uses: actions/download-artifact@v8
+      - uses: actions/setup-dotnet@v6
       - name: Create NuGet folders
         shell: bash
         run: |
@@ -124,7 +124,7 @@ jobs:
       - name: Download and extract UWP builds
         shell: bash
         run: |
-          7z x libvlc-arm64/vlc-$VLC_VERSION-win64.7z -oarm64/vlc/winarm64-uwp -y  
+          7z x libvlc-arm64/vlc-$VLC_VERSION-winarm64.7z -oarm64/vlc/winarm64-uwp -y
 
           7z x libvlc-x86/vlc-$VLC_VERSION-win32.7z -ox86/vlc/win32-uwp -y
 

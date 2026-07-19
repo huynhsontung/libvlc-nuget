@@ -1,0 +1,28 @@
+From b75c8e844297b3709939d7a00a46e1c9d8c17874 Mon Sep 17 00:00:00 2001
+From: Tung Huynh <tung75605@gmail.com>
+Date: Thu, 16 Jul 2026 21:35:39 -0700
+Subject: [PATCH] contrib: orc: cast old_protect and msg to fix UWP build
+
+Added for libvlc tag 3.0.23, compiled with LLVM + UCRT (vlc-debian-llvm-ucrt).
+
+---
+ contrib/src/orc/rules.mak | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/contrib/src/orc/rules.mak b/contrib/src/orc/rules.mak
+index 93b9ee605b..fb576d1dae 100644
+--- a/contrib/src/orc/rules.mak
++++ b/contrib/src/orc/rules.mak
+@@ -18,7 +18,7 @@ orc: orc-$(ORC_VERSION).tar.bz2 .sum-orc
+ 	$(APPLY) $(SRC)/orc/0001-Fix-usage-of-pthread_jit_write_protect_np-on-macOS-a.patch
+ 
+ 	# replace FORMAT_MESSAGE_ALLOCATE_BUFFER which may not be available in older mingw-w64 UWP
+-	sed -i.orig -e s/FORMAT_MESSAGE_ALLOCATE_BUFFER/0x00000100/g $(UNPACK_DIR)/orc/orccompiler.c
++	sed -i.orig -e s/FORMAT_MESSAGE_ALLOCATE_BUFFER/0x00000100/g -e 's/&old_protect/(ULONG *)\&old_protect/g' -e 's/(LPTSTR) &msg/(LPSTR) \&msg/g' $(UNPACK_DIR)/orc/orccompiler.c
+ 
+ 	$(MOVE)
+ 
+-- 
+2.54.0.windows.1
+
+

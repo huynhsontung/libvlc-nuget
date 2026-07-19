@@ -1,0 +1,28 @@
+From eba9f1ceb6f3f305693a7b86c59d5d4dce65b031 Mon Sep 17 00:00:00 2001
+From: Tung Huynh <tung75605@gmail.com>
+Date: Thu, 16 Jul 2026 09:44:13 -0700
+Subject: [PATCH] contrib: libdsm: cast getsockopt optval to char* to fix UWP
+ build
+
+Added for libvlc tag 3.0.23, compiled with LLVM + UCRT (vlc-debian-llvm-ucrt).
+
+---
+ contrib/src/libdsm/rules.mak | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/contrib/src/libdsm/rules.mak b/contrib/src/libdsm/rules.mak
+index eea094d2af..3e94f89f76 100644
+--- a/contrib/src/libdsm/rules.mak
++++ b/contrib/src/libdsm/rules.mak
+@@ -21,6 +21,7 @@ libdsm: libdsm-$(LIBDSM_VERSION).tar.xz .sum-libdsm
+ 	$(UNPACK)
+ 	$(APPLY) $(SRC)/libdsm/0001-Avoid-relying-on-implicit-function-declarations.patch
+ 	$(APPLY) $(SRC)/libdsm/0001-use-GetCurrentProcessId-for-the-process-ID-on-Window.patch
++	sed -i.orig -e 's/&ret/(char *)\&ret/g' $(UNPACK_DIR)/src/netbios_session.c
+ 	$(MOVE)
+ 
+ DEPS_libdsm = libtasn1 iconv
+-- 
+2.54.0.windows.1
+
+

@@ -1,0 +1,27 @@
+From 4e183606f7e47163ede7fe513153b1125d848ede Mon Sep 17 00:00:00 2001
+From: Bot <bot@example.com>
+Date: Sat, 18 Jul 2026 10:29:23 -0700
+Subject: [PATCH] win32: winstore: fix STDMETHODIMP for i686
+
+Added for libvlc tag 3.0.23, compiled with LLVM + UCRT (vlc-debian-llvm-ucrt).
+
+---
+ modules/audio_output/winstore.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/modules/audio_output/winstore.c b/modules/audio_output/winstore.c
+index 8366200344..efcc102dab 100644
+--- a/modules/audio_output/winstore.c
++++ b/modules/audio_output/winstore.c
+@@ -104,7 +104,7 @@ static STDMETHODIMP MMDeviceLocator_QueryInterface(IActivateAudioInterfaceComple
+ }
+ 
+ /* MMDeviceLocator IActivateAudioInterfaceCompletionHandler methods */
+-static HRESULT MMDeviceLocator_ActivateCompleted(IActivateAudioInterfaceCompletionHandler *This,
++static STDMETHODIMP MMDeviceLocator_ActivateCompleted(IActivateAudioInterfaceCompletionHandler *This,
+                                                  IActivateAudioInterfaceAsyncOperation *operation)
+ {
+     (void)operation;
+-- 
+2.54.0.windows.1
+

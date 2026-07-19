@@ -1,0 +1,30 @@
+From 5b07135809949b19dc3300160001eedb8a6e00e4 Mon Sep 17 00:00:00 2001
+From: Tung Huynh <tung75605@gmail.com>
+Date: Thu, 16 Jul 2026 09:05:44 -0700
+Subject: [PATCH] contrib: iconv: fix GetHandleInformation conflict
+
+Added for libvlc tag 3.0.23, compiled with LLVM + UCRT (vlc-debian-llvm-ucrt).
+
+---
+ contrib/src/iconv/rules.mak | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/contrib/src/iconv/rules.mak b/contrib/src/iconv/rules.mak
+index 6246ba4c5f..2bbe279c36 100644
+--- a/contrib/src/iconv/rules.mak
++++ b/contrib/src/iconv/rules.mak
+@@ -27,9 +27,9 @@ iconv: libiconv-$(LIBICONV_VERSION).tar.gz .sum-iconv
+ 	# use CreateFile2 instead of CreateFile in UWP
+ 	$(APPLY) $(SRC)/iconv/0001-Use-CreateFile2-in-UWP-builds.patch
+ 
+-	# fix forbidden UWP call which can't be upstreamed as they won't
+ 	# differentiate for winstore, only _WIN32_WINNT
+ 	$(APPLY) $(SRC)/iconv/0001-do-not-call-GetHandleInformation-in-Winstore-apps.patch
++	sed -i.orig -e 's/static inline BOOL GetHandleInformation/#define GetHandleInformation my_GetHandleInformation\nstatic inline BOOL GetHandleInformation/' $(UNPACK_DIR)/srclib/fcntl.c
+ 
+ 	$(UPDATE_AUTOCONFIG) && cd $(UNPACK_DIR) && mv config.guess config.sub build-aux
+ 	$(UPDATE_AUTOCONFIG) && cd $(UNPACK_DIR) && mv config.guess config.sub libcharset/build-aux
+-- 
+2.54.0.windows.1
+
+

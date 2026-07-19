@@ -1,4 +1,4 @@
-From 1b8e8c5cb5f587fdddd2ebb5477e64546d53dc92 Mon Sep 17 00:00:00 2001
+From 0a72ed66476ae14cb8f506c1ea5b51cdafcacb6c Mon Sep 17 00:00:00 2001
 From: Tung Huynh <tung75605@gmail.com>
 Date: Sun, 4 May 2025 23:28:43 -0700
 Subject: [PATCH] invoke appcontainer.pl
@@ -8,19 +8,19 @@ Subject: [PATCH] invoke appcontainer.pl
  1 file changed, 3 insertions(+)
 
 diff --git a/extras/package/win32/build.sh b/extras/package/win32/build.sh
-index bf709458aa..b724c45c4d 100755
+index e974d3dd29..f3243c75a0 100755
 --- a/extras/package/win32/build.sh
 +++ b/extras/package/win32/build.sh
 @@ -523,6 +523,9 @@ elif [ "$INSTALLER" = "r" ]; then
  make package-win32
  elif [ "$INSTALLER" = "u" ]; then
- make package-win32-release
+ make -j$JOBS package-win32-release package-win32-exe package-msi
 +if [ ! -z "$WINSTORE" ]; then
 +    find . \( -name "*.dll" -o -name "*.exe" \) -exec ../../patches/appcontainer.pl {} \;
 +fi
  sha512sum vlc-*-release.7z
- elif [ -n "$INSTALL_PATH" ]; then
- make package-win-install
+ sha512sum vlc-*-*.exe
+ sha512sum vlc-*-*.msi
 -- 
-2.40.1
+2.47.3
 

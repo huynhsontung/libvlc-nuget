@@ -1,0 +1,28 @@
+From 178a5794ddce7a3cac1af1926138d2617f1ccbac Mon Sep 17 00:00:00 2001
+From: Bot <bot@example.com>
+Date: Thu, 16 Jul 2026 23:38:52 -0700
+Subject: [PATCH] win32: build: reserve x18 register for aarch64
+
+---
+ extras/package/win32/build.sh | 5 +++++
+ 1 file changed, 5 insertions(+)
+
+diff --git a/extras/package/win32/build.sh b/extras/package/win32/build.sh
+index e974d3dd29..01c1e7fe08 100755
+--- a/extras/package/win32/build.sh
++++ b/extras/package/win32/build.sh
+@@ -241,6 +241,11 @@ unset CPPFLAGS
+ VLC_LDFLAGS="$LDFLAGS"
+ unset LDFLAGS
+ 
++if [ "$ARCH" = "aarch64" ]; then
++    VLC_CFLAGS="$VLC_CFLAGS -ffixed-x18"
++    VLC_CXXFLAGS="$VLC_CXXFLAGS -ffixed-x18"
++fi
++
+ if [ -n "$BUILD_UCRT" ]; then
+     WIDL=${TRIPLET}-widl
+     VLC_CPPFLAGS="$VLC_CPPFLAGS -D__MSVCRT_VERSION__=0xE00 -D_UCRT"
+-- 
+2.54.0.windows.1
+

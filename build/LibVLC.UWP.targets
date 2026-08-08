@@ -10,14 +10,17 @@
     <None Condition="'$(Platform)' == 'x64'" Include="@(VlcUWPX64IncludeFilesFullPath)">
       <Link>$([MSBuild]::MakeRelative($(MSBuildThisFileDirectory)win10-x64\, %(FullPath)))</Link>
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <Visible>false</Visible>
     </None>
     <None Condition="'$(Platform)' == 'x86'" Include="@(VlcUWPX86IncludeFilesFullPath)">
       <Link>$([MSBuild]::MakeRelative($(MSBuildThisFileDirectory)win10-x86\, %(FullPath)))</Link>
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <Visible>false</Visible>
     </None>
     <None Condition="'$(Platform)' == 'ARM64'" Include="@(VlcUWPARM64IncludeFilesFullPath)">
       <Link>$([MSBuild]::MakeRelative($(MSBuildThisFileDirectory)win10-arm64\, %(FullPath)))</Link>
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <Visible>false</Visible>
     </None>
   </ItemGroup>
 </Project>

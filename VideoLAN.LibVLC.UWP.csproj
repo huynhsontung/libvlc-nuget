@@ -28,9 +28,9 @@
     <None Include="build\LibVLC.UWP.targets" Pack="true" PackagePath="build\" />
 
     <!-- Include native assets for different architectures -->
-    <Content Include="build\win10-x86\native\**" Pack="true" PackagePath="build\win10-x86" />
-    <Content Include="build\win10-x64\native\**" Pack="true" PackagePath="build\win10-x64" />
-    <Content Include="build\win10-arm64\native\**" Pack="true" PackagePath="build\win10-arm64" />
+    <None Include="build\win10-x86\native\**" Pack="true" PackagePath="build\win10-x86" />
+    <None Include="build\win10-x64\native\**" Pack="true" PackagePath="build\win10-x64" />
+    <None Include="build\win10-arm64\native\**" Pack="true" PackagePath="build\win10-arm64" />
   </ItemGroup>
 
 </Project>

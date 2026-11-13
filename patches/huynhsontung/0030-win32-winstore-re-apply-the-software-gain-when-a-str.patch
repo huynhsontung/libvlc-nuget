@@ -1,0 +1,38 @@
+From 473d03035bc5b1c4b3e59e4d9cf00e6d963e2c5e Mon Sep 17 00:00:00 2001
+From: Stylianos Anastasiou <77302709+souvlakias@users.noreply.github.com>
+Date: Fri, 13 Nov 2026 22:59:11 +0200
+Subject: [PATCH] win32: winstore: re-apply the software gain when a stream
+ starts
+
+Volumes above 100% are applied as a session volume capped at 1 plus a
+software gain requested with aout_GainRequest() in VolumeSet(). Every
+new audio stream gets a fresh amplifier at unity gain from
+aout_DecNew(), but Start() never requests the stored gain again, while
+it still reports the previous volume to the core. After switching to the
+next media, or after a decoder restart such as an audio track change,
+playback above 100% is therefore quieter although the reported volume is
+unchanged.
+
+Request the stored gain once the stream has started, as mmdevice does at
+the end of its Start().
+
+Added for libvlc tag 3.0.23 (Screenbox issue #621).
+---
+ modules/audio_output/winstore.c | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/modules/audio_output/winstore.c b/modules/audio_output/winstore.c
+index 5489349..a01ad7a 100644
+--- a/modules/audio_output/winstore.c
++++ b/modules/audio_output/winstore.c
+@@ -556,6 +556,7 @@ static int Start(audio_output_t *aout, audio_sample_format_t *restrict fmt)
+ 
+     assert (sys->stream == NULL);
+     sys->stream = s;
++    aout_GainRequest(aout, sys->gain);
+     return 0;
+ }
+ 
+-- 
+2.55.0.windows.2
+

@@ -1,0 +1,270 @@
+From b168bf63d5202754400e0e4045beed0599a950cb Mon Sep 17 00:00:00 2001
+From: Bot <bot@example.com>
+Date: Tue, 24 Nov 2026 01:32:00 -0800
+Subject: [PATCH] direct3d11: support dynamic swapchain transform
+
+Read an optional video_orientation_t transform from the WinRT
+IDXGISwapChain via GUID_SWAPCHAIN_TRANSFORM private data, compose it
+with the stream's native orientation, and update the D3D11 quad vertex
+coordinates and display placement dynamically without reloading media or
+tearing down the vout pipeline.
+
+Also fix SetupQuadFlat 90/270/180-degree coordinate calculations for
+padded or cropped textures, and prevent double-rotation of direct-
+rendered subpicture formats when scaling subtitles to a rotated output.
+
+Added for libvlc tag 3.0.23.
+---
+ modules/video_output/win32/d3d11_quad.c | 51 +++++---------
+ modules/video_output/win32/direct3d11.c | 94 ++++++++++++++++++++++++-
+ src/video_output/video_output.c         |  1 +
+ 3 files changed, 111 insertions(+), 35 deletions(-)
+
+diff --git a/modules/video_output/win32/d3d11_quad.c b/modules/video_output/win32/d3d11_quad.c
+index 2d5239e778..2defd4445d 100644
+--- a/modules/video_output/win32/d3d11_quad.c
++++ b/modules/video_output/win32/d3d11_quad.c
+@@ -242,7 +242,8 @@ static void SetupQuadFlat(d3d_vertex_t *dst_data, const RECT *output,
+ {
+     unsigned int src_width = quad->i_width;
+     unsigned int src_height = quad->i_height;
+-    float MidX,MidY;
++    float MidX = (output->left + output->right) / 2.f;
++    float MidY = (output->top + output->bottom) / 2.f;
+ 
+     float top, bottom, left, right;
+     /* find the middle of the visible part of the texture, it will be a 0,0
+@@ -251,58 +252,44 @@ static void SetupQuadFlat(d3d_vertex_t *dst_data, const RECT *output,
+     {
+     case ORIENT_ROTATED_90: /* 90° anti clockwise */
+         /* right/top aligned */
+-        MidY = (output->left + output->right) / 2.f;
+-        MidX = (output->top + output->bottom) / 2.f;
+-        top    =  MidY / (MidY - output->top);
+-        bottom = -(src_height - MidX) / (MidX - output->top);
+-        left   =  (MidX - src_height) / (MidX - output->left);
+-        right  =                 MidX / (MidX - (src_width - output->right));
++        top    =  MidX / (MidX - output->left);
++        bottom = -(src_width  - MidX) / (output->right  - MidX);
++        left   = -(src_height - MidY) / (output->bottom - MidY);
++        right  =  MidY / (MidY - output->top);
+         break;
+     case ORIENT_ROTATED_180: /* 180° */
+         /* right/top aligned */
+-        MidY = (output->top + output->bottom) / 2.f;
+-        MidX = (output->left + output->right) / 2.f;
+         top    =  (src_height - MidY) / (output->bottom - MidY);
+         bottom = -MidY / (MidY - output->top);
+-        left   = -MidX / (MidX - output->left);
+-        right  =  (src_width  - MidX) / (output->right - MidX);
++        left   = -(src_width  - MidX) / (output->right  - MidX);
++        right  =  MidX / (MidX - output->left);
+         break;
+     case ORIENT_ROTATED_270: /* 90° clockwise */
+         /* right/top aligned */
+-        MidY = (output->left + output->right) / 2.f;
+-        MidX = (output->top + output->bottom) / 2.f;
+-        top    =  (src_width  - MidX) / (output->right - MidX);
+-        bottom = -MidY / (MidY - output->top);
+-        left   = -MidX / (MidX - output->left);
+-        right  =  (src_height - MidX) / (output->bottom - MidX);
++        top    =  (src_width  - MidX) / (output->right  - MidX);
++        bottom = -MidX / (MidX - output->left);
++        left   = -MidY / (MidY - output->top);
++        right  =  (src_height - MidY) / (output->bottom - MidY);
+         break;
+     case ORIENT_ANTI_TRANSPOSED:
+-        MidY = (output->left + output->right) / 2.f;
+-        MidX = (output->top + output->bottom) / 2.f;
+-        top    =  (src_width  - MidX) / (output->right - MidX);
+-        bottom = -MidY / (MidY - output->top);
++        top    =  (src_width  - MidX) / (output->right  - MidX);
++        bottom = -MidX / (MidX - output->left);
+         left   = -(src_height - MidY) / (output->bottom - MidY);
+-        right  =  MidX / (MidX - output->left);
++        right  =  MidY / (MidY - output->top);
+         break;
+     case ORIENT_TRANSPOSED:
+-        MidY = (output->left + output->right) / 2.f;
+-        MidX = (output->top + output->bottom) / 2.f;
+-        top    =  (src_width  - MidX) / (output->right - MidX);
+-        bottom = -MidY / (MidY - output->top);
+-        left   = -MidX / (MidX - output->left);
++        top    =  MidX / (MidX - output->left);
++        bottom = -(src_width  - MidX) / (output->right  - MidX);
++        left   = -MidY / (MidY - output->top);
+         right  =  (src_height - MidY) / (output->bottom - MidY);
+         break;
+     case ORIENT_VFLIPPED:
+-        MidY = (output->top + output->bottom) / 2.f;
+-        MidX = (output->left + output->right) / 2.f;
+         top    =  (src_height - MidY) / (output->bottom - MidY);
+         bottom = -MidY / (MidY - output->top);
+         left   = -MidX / (MidX - output->left);
+         right  =  (src_width  - MidX) / (output->right - MidX);
+         break;
+     case ORIENT_HFLIPPED:
+-        MidY = (output->top + output->bottom) / 2.f;
+-        MidX = (output->left + output->right) / 2.f;
+         top    =  MidY / (MidY - output->top);
+         bottom = -(src_height - MidY) / (output->bottom - MidY);
+         left   = -(src_width  - MidX) / (output->right - MidX);
+@@ -311,8 +298,6 @@ static void SetupQuadFlat(d3d_vertex_t *dst_data, const RECT *output,
+     case ORIENT_NORMAL:
+     default:
+         /* left/top aligned */
+-        MidY = (output->top + output->bottom) / 2.f;
+-        MidX = (output->left + output->right) / 2.f;
+         top    =  MidY / (MidY - output->top);
+         bottom = -(src_height - MidY) / (output->bottom - MidY);
+         left   = -MidX / (MidX - output->left);
+diff --git a/modules/video_output/win32/direct3d11.c b/modules/video_output/win32/direct3d11.c
+index 08c6a6691c..91dba38793 100644
+--- a/modules/video_output/win32/direct3d11.c
++++ b/modules/video_output/win32/direct3d11.c
+@@ -62,6 +62,7 @@
+ 
+ DEFINE_GUID(GUID_SWAPCHAIN_WIDTH,  0xf1b59347, 0x1643, 0x411a, 0xad, 0x6b, 0xc7, 0x80, 0x17, 0x7a, 0x06, 0xb6);
+ DEFINE_GUID(GUID_SWAPCHAIN_HEIGHT, 0x6ea976a0, 0x9d60, 0x4bb7, 0xa5, 0xa9, 0x7d, 0xd1, 0x18, 0x7f, 0xc9, 0xbd);
++DEFINE_GUID(GUID_SWAPCHAIN_TRANSFORM, 0x8b4c9e21, 0x7f3a, 0x4d62, 0x9c, 0x1e, 0x54, 0xa8, 0x3b, 0x90, 0xe2, 0x71);
+ 
+ static int  Open(vlc_object_t *);
+ static void Close(vlc_object_t *);
+@@ -146,6 +147,8 @@ struct vout_display_sys_t
+     d3d11_device_t           d3d_dev;
+     d3d_quad_t               picQuad;
+     video_format_t           quad_fmt;
++    video_orientation_t      base_orientation;
++    video_orientation_t      user_transform;
+ 
+ #ifdef HAVE_D3D11_4_H
+     ID3D11Fence              *d3dRenderFence;
+@@ -263,6 +266,84 @@ static bool GetWinRTSize(const vout_display_sys_win32_t *p_sys, UINT *w, UINT *h
+     return true;
+ }
+ 
++static void OrientationGetOps(video_orientation_t orient,
++                              unsigned *angle, bool *hflip)
++{
++    *hflip = ORIENT_IS_MIRROR(orient);
++    switch (orient)
++    {
++        case ORIENT_ROTATED_90:
++        case ORIENT_TRANSPOSED:
++            *angle = 90;
++            break;
++        case ORIENT_ROTATED_180:
++        case ORIENT_VFLIPPED:
++            *angle = 180;
++            break;
++        case ORIENT_ROTATED_270:
++        case ORIENT_ANTI_TRANSPOSED:
++            *angle = 270;
++            break;
++        case ORIENT_HFLIPPED:
++        case ORIENT_NORMAL:
++        default:
++            *angle = 0;
++            break;
++    }
++}
++
++static video_orientation_t ComposeOrientation(video_orientation_t base,
++                                              video_orientation_t user)
++{
++    unsigned angle1, angle2;
++    bool hflip1, hflip2;
++
++    OrientationGetOps(base, &angle1, &hflip1);
++    OrientationGetOps(user, &angle2, &hflip2);
++
++    unsigned angle = hflip1 ? (angle1 - angle2 + 360) % 360
++                            : (angle1 + angle2) % 360;
++    bool hflip = hflip1 ^ hflip2;
++
++    switch (angle)
++    {
++        case 90:
++            return hflip ? ORIENT_TRANSPOSED : ORIENT_ROTATED_90;
++        case 180:
++            return hflip ? ORIENT_VFLIPPED : ORIENT_ROTATED_180;
++        case 270:
++            return hflip ? ORIENT_ANTI_TRANSPOSED : ORIENT_ROTATED_270;
++        default:
++            return hflip ? ORIENT_HFLIPPED : ORIENT_NORMAL;
++    }
++}
++
++static bool UpdateWinRTTransform(vout_display_t *vd)
++{
++    vout_display_sys_t *sys = vd->sys;
++    if (sys->sys.pf_GetWindowSize != GetWinRTSize || !sys->dxgiswapChain)
++        return false;
++
++    uint32_t raw_transform = ORIENT_NORMAL;
++    UINT dataSize = sizeof(raw_transform);
++    HRESULT hr = IDXGISwapChain_GetPrivateData(sys->dxgiswapChain,
++                                               &GUID_SWAPCHAIN_TRANSFORM,
++                                               &dataSize, &raw_transform);
++    if (FAILED(hr) || dataSize != sizeof(raw_transform) ||
++        raw_transform > ORIENT_RIGHT_BOTTOM)
++        raw_transform = ORIENT_NORMAL;
++
++    video_orientation_t transform = (video_orientation_t)raw_transform;
++    if (transform == sys->user_transform)
++        return false;
++
++    sys->user_transform = transform;
++    video_orientation_t composed = ComposeOrientation(sys->base_orientation, transform);
++    vd->source.orientation = composed;
++    vd->fmt.orientation    = composed;
++    return true;
++}
++
+ static int OpenCoreW(vout_display_t *vd)
+ {
+     IDXGISwapChain1* dxgiswapChain  = (void*)var_InheritInteger(vd, "winrt-swapchain");
+@@ -335,6 +416,10 @@ static int Open(vlc_object_t *object)
+     else if (CommonInit(vd) != VLC_SUCCESS)
+         goto error;
+ 
++    sys->base_orientation = vd->source.orientation;
++    sys->user_transform   = ORIENT_NORMAL;
++    UpdateWinRTTransform(vd);
++
+     vd->sys->sys.pf_GetPictureWidth  = GetPictureWidth;
+     vd->sys->sys.pf_GetPictureHeight = GetPictureHeight;
+ 
+@@ -976,10 +1061,15 @@ static void Manage(vout_display_t *vd)
+     RECT before_src_clipped  = sys->sys.rect_src_clipped;
+     RECT before_dest_clipped = sys->sys.rect_dest_clipped;
+     RECT before_dest         = sys->sys.rect_dest;
++    bool orientation_changed = UpdateWinRTTransform(vd);
+ 
+-    CommonManage(vd);
++    if (orientation_changed)
++        UpdateRects(vd, NULL, true);
++    else
++        CommonManage(vd);
+ 
+-    if (!RectEquals(&before_src_clipped, &sys->sys.rect_src_clipped) ||
++    if (orientation_changed ||
++        !RectEquals(&before_src_clipped, &sys->sys.rect_src_clipped) ||
+         !RectEquals(&before_dest_clipped, &sys->sys.rect_dest_clipped) ||
+         !RectEquals(&before_dest, &sys->sys.rect_dest))
+     {
+diff --git a/src/video_output/video_output.c b/src/video_output/video_output.c
+index cd06e8023f..e15ee75612 100644
+--- a/src/video_output/video_output.c
++++ b/src/video_output/video_output.c
+@@ -1026,6 +1026,7 @@ static int ThreadDisplayRenderPicture(vout_thread_t *vout, bool is_forced)
+             fmt_spu.i_visible_width  = place.width;
+             fmt_spu.i_height         =
+             fmt_spu.i_visible_height = place.height;
++            fmt_spu.orientation      = ORIENT_NORMAL;
+         }
+         subpicture_chromas = vd->info.subpicture_chromas;
+     } else {
+-- 
+2.55.0.windows.5
+

@@ -160,7 +160,12 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: libvlc-uwp
-          path: '*.nupkg'
+          path: "*.nupkg"
+      - name: NuGet login
+        uses: NuGet/login@v1
+        id: login
+        with:
+          user: ${{ vars.NUGET_USER }}
       - name: Push to Nuget
         if: github.event_name == 'push'
-        run: dotnet nuget push *.nupkg --source "https://api.nuget.org/v3/index.json" --api-key ${{ secrets.NUGET_TOKEN }} --skip-duplicate
+        run: dotnet nuget push *.nupkg --source "https://api.nuget.org/v3/index.json" --api-key ${{ steps.login.outputs.NUGET_API_KEY }} --skip-duplicate

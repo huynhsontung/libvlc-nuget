@@ -111,6 +111,9 @@ jobs:
     needs:
       - UWP_access
       - libvlc
+    permissions:
+      id-token: write
+      contents: read
     steps:
       - uses: actions/checkout@v7
       - uses: actions/download-artifact@v8

@@ -1,6 +1,6 @@
-From 6748168c505d888db969b9adf798cdb1d1dfe509 Mon Sep 17 00:00:00 2001
+From 78b4298cfb1a5298f8b27c53d976874560c8f737 Mon Sep 17 00:00:00 2001
 From: Bot <bot@example.com>
-Date: Tue, 24 Nov 2026 20:58:39 -0800
+Date: Tue, 24 Nov 2026 22:03:16 -0800
 Subject: [PATCH] direct3d11: support dynamic swapchain transform
 
 Read an optional video_orientation_t transform from the WinRT
@@ -14,16 +14,16 @@ padded or cropped textures, prevent double-rotation of direct-rendered
 subpicture formats when scaling subtitles to a rotated output, pass the
 rotated source format to spu_Render() so ASS/libass and text subtitles
 keep the right aspect ratio, and scale bitmap subtitles (PGS/VobSub)
-uniformly when the output orientation is swapped relative to the
-subtitle canvas.
+uniformly while anchoring bottom-half cues to the bottom edge when the
+output orientation is swapped relative to the subtitle canvas.
 
 Added for libvlc tag 3.0.23.
 ---
  modules/video_output/win32/d3d11_quad.c | 51 +++++---------
  modules/video_output/win32/direct3d11.c | 94 ++++++++++++++++++++++++-
  src/video_output/video_output.c         |  5 +-
- src/video_output/vout_subpictures.c     | 66 ++++++++++++-----
- 4 files changed, 163 insertions(+), 53 deletions(-)
+ src/video_output/vout_subpictures.c     | 76 +++++++++++++++-----
+ 4 files changed, 173 insertions(+), 53 deletions(-)
 
 diff --git a/modules/video_output/win32/d3d11_quad.c b/modules/video_output/win32/d3d11_quad.c
 index 2d5239e778..2defd4445d 100644
@@ -284,7 +284,7 @@ index cd06e8023f..ed8f98cfe4 100644
                                        do_snapshot);
      /*
 diff --git a/src/video_output/vout_subpictures.c b/src/video_output/vout_subpictures.c
-index 68dde84113..b5a7c89505 100644
+index 68dde84113..1e72c331ab 100644
 --- a/src/video_output/vout_subpictures.c
 +++ b/src/video_output/vout_subpictures.c
 @@ -1089,25 +1089,41 @@ static subpicture_t *SpuRenderSubpictures(spu_t *spu,
@@ -345,7 +345,7 @@ index 68dde84113..b5a7c89505 100644
  
              /* Check scale validity */
              if (scale.w <= 0 || scale.h <= 0)
-@@ -1119,8 +1135,24 @@ static subpicture_t *SpuRenderSubpictures(spu_t *spu,
+@@ -1119,8 +1135,34 @@ static subpicture_t *SpuRenderSubpictures(spu_t *spu,
                              chroma_list, fmt_dst,
                              subtitle_area, subtitle_area_count,
                              subpic->b_subtitle ? render_subtitle_date : render_osd_date);
@@ -354,9 +354,19 @@ index 68dde84113..b5a7c89505 100644
 +                if (swapped_ar && subpic->b_absolute) {
 +                    subpicture_region_t *dst = *output_last_ptr;
 +                    if (fmt_dst->i_visible_height > fmt_dst->i_visible_width) {
-+                        int y = (int64_t)region->i_y * fmt_dst->i_visible_height /
-+                                subpic->i_original_picture_height;
-+                        int max_y = (int)fmt_dst->i_visible_height - (int)dst->fmt.i_visible_height;
++                        int orig_h = subpic->i_original_picture_height;
++                        int orig_r_h = region->fmt.i_visible_height;
++                        int dst_h = fmt_dst->i_visible_height;
++                        int dst_r_h = dst->fmt.i_visible_height;
++                        int y;
++                        if (region->i_y + orig_r_h / 2 >= orig_h / 2) {
++                            int bottom_margin = orig_h - (region->i_y + orig_r_h);
++                            int scaled_margin = (int64_t)bottom_margin * dst_h / orig_h;
++                            y = dst_h - dst_r_h - scaled_margin;
++                        } else {
++                            y = (int64_t)region->i_y * dst_h / orig_h;
++                        }
++                        int max_y = dst_h - dst_r_h;
 +                        dst->i_y = VLC_CLIP(y, 0, __MAX(max_y, 0));
 +                    } else {
 +                        int cx = (int64_t)(region->i_x + (int)region->fmt.i_visible_width / 2) *

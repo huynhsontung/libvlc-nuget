@@ -70,7 +70,7 @@ Currently, you can customize three things during the build:
 
 #### LibVLC 3:
 
-Latest stable version is [3.0.14](https://code.videolan.org/videolan/vlc-3.0/-/tags/3.0.14). Feel free to check out the [release notes](https://code.videolan.org/videolan/vlc-3.0/-/blob/master/NEWS).
+Latest stable version is [3.0.21](https://code.videolan.org/videolan/vlc/-/tags). Feel free to check out the [release notes](https://code.videolan.org/videolan/vlc/-/blob/3.0.x/NEWS).
 
 Minimum OS version supported by LibVLC 3.x:
 
@@ -85,6 +85,11 @@ Minimum OS version supported by LibVLC 3.x:
  dotnet add package VideoLAN.LibVLC.Windows
 ```
 
+*For the GPL version, use the following command:*
+```cmd
+ dotnet add package VideoLAN.LibVLC.Windows.GPL
+```
+
 [![NuGet version](https://img.shields.io/nuget/v/VideoLAN.LibVLC.Windows.svg)](https://www.nuget.org/packages/VideoLAN.LibVLC.Windows)
 [![NuGet downloads](https://img.shields.io/nuget/dt/VideoLAN.LibVLC.Windows.svg)](https://www.nuget.org/packages/VideoLAN.LibVLC.Windows)
 
@@ -92,6 +97,7 @@ Minimum OS version supported by LibVLC 3.x:
 
 - x86
 - x64
+- ARM64
 
 *Note: if you intend to use libvlc with UWP projects, you probably need to install the [UWP](#windows-universal) package instead because this build directly uses win32 APIs.*
 
@@ -197,7 +203,7 @@ For Ubuntu, follow this [guide](https://code.videolan.org/videolan/LibVLCSharp/b
 If you would like VLC developers to provide you with:
 - custom development on LibVLC and/or LibVLCSharp, 
 - training and workshops,
-- [LibVLCSharp commercial licenses](https://videolabs.io/solutions/libvlcsharp),
+- [LibVLCSharp commercial licenses](https://videolabs.io/store/libvlcsharp),
 - support services,
 - consulting services,
 - other multimedia services.

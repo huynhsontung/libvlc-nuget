@@ -160,7 +160,7 @@ jobs:
         shell: bash
         run: dotnet pack VideoLAN.LibVLC.UWP.csproj -p:Version=$VLC_VERSION-${{ steps.get-tag.outputs.tag }}+$(printf '%.10s' $GITHUB_SHA) -o .
       - name: Upload NuGet package
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: libvlc-uwp
           path: "*.nupkg"

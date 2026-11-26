@@ -1,6 +1,9 @@
 variables:
     VLC_UWP_LLVM_IMAGE: registry.videolan.org/vlc-debian-llvm-uwp:20211020111246
-    VLC_VERSION: 3.0.20
+    VLC_WIN_LLVM_UCRT_IMAGE: registry.videolan.org/vlc-debian-llvm-ucrt:20260331112916
+    VLC_DEBIAN_IMAGE: registry.videolan.org/vlc-debian-unstable:20260611225331
+    # Exact 3.0.x revision from the last green x64/x86/ARM UWP pipeline.
+    UWP_VLC_REVISION: "f971556a3ef052908aad990818f4243f5b6ecafc"
     UWP_LIBVLC_BUILD_FLAGS: -z -r -u -w
 
 .variables-win32: &variables-win32
@@ -30,7 +33,8 @@ variables:
 .winrt-common:
     extends: .docker-template
     script: |
-        git clone https://code.videolan.org/videolan/vlc && cd vlc && git checkout 3.0.x
+        git clone --branch 3.0.x --single-branch https://code.videolan.org/videolan/vlc vlc && cd vlc
+        git checkout --detach "$UWP_VLC_REVISION"
         git config --global user.email "cone@example.com"
         git config --local user.name "Cony Cone"
         git am -3 ../patches/*.patch
@@ -63,6 +67,25 @@ uwp-x86:
 uwp-arm:
     extends: .nightly-winrt-common
     image:
-        name: $VLC_UWP_LLVM_IMAGE
+        name: $VLC_WIN_LLVM_UCRT_IMAGE
     variables:
         <<: *variables-win-arm
+
+#
+# macOS
+#
+macos-nuget:
+    extends: .docker-template
+    image:
+        name: $VLC_DEBIAN_IMAGE
+    variables:
+        MACOS_VLC_VERSION: "3.0.24"
+        DOTNET_SDK_VERSION: "10.0.102"
+    script: |
+        curl -Lsfo dotnet-sdk.tar.gz https://builds.dotnet.microsoft.com/dotnet/Sdk/${DOTNET_SDK_VERSION}/dotnet-sdk-${DOTNET_SDK_VERSION}-linux-x64.tar.gz
+        mkdir -p $HOME/dotnet && tar zxf dotnet-sdk.tar.gz -C $HOME/dotnet
+        export DOTNET_ROOT=$HOME/dotnet PATH=$PATH:$HOME/dotnet
+        ./package-nuget-mac.sh "$MACOS_VLC_VERSION"
+    artifacts:
+        paths:
+            - VideoLAN.LibVLC.Mac.*.nupkg

@@ -1,0 +1,25 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Tung Huynh <tung75605@gmail.com>
+Date: Thu, 26 Nov 2026 19:22:00 -0800
+Subject: [PATCH] win32: build: allow packaging when -z (DISABLEGUI) is set
+
+VLC 3.0.24 clears INSTALLER when -z is passed, which skips
+`make package-win32` in UWP builds (`-z -r -u -w`).
+
+---
+ extras/package/win32/build.sh | 1 -
+ 1 file changed, 1 deletion(-)
+
+diff --git a/extras/package/win32/build.sh b/extras/package/win32/build.sh
+--- a/extras/package/win32/build.sh
++++ b/extras/package/win32/build.sh
+@@ -125,7 +125,6 @@ case $ARCH in
+ esac
+ 
+ if [ -n "$DISABLEGUI" ]; then
+-    INSTALLER=""
+     I18N=""
+ fi
+ 
+-- 
+2.54.0.windows.1

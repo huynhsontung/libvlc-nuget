@@ -9,7 +9,6 @@ Subject: [PATCH] qsv: CUMULATIVE PATCH to encode from CPU planes properly
  2 files changed, 293 insertions(+), 161 deletions(-)
 
 diff --git a/modules/codec/Makefile.am b/modules/codec/Makefile.am
-index 1c0227635a..06cfdf68fa 100644
 --- a/modules/codec/Makefile.am
 +++ b/modules/codec/Makefile.am
 @@ -603,7 +603,7 @@ libcrystalhd_plugin_la_LIBADD = $(LIBS_crystalhd)
@@ -18,11 +17,10 @@ index 1c0227635a..06cfdf68fa 100644
  
 -libqsv_plugin_la_SOURCES = codec/qsv.c
 +libqsv_plugin_la_SOURCES = codec/qsv.c codec/vlc_fifo_helper.h
- libqsv_plugin_la_CFLAGS = $(AM_CFLAGS) $(MFX_CFLAGS)
+ libqsv_plugin_la_CFLAGS = $(AM_CFLAGS) $(VPL_CFLAGS)
  libqsv_plugin_la_LDFLAGS = $(AM_LDFLAGS) -rpath '$(codecdir)'
- libqsv_plugin_la_LIBADD = $(MFX_LIBS)
+ libqsv_plugin_la_LIBADD = $(VPL_LIBS)
 diff --git a/modules/codec/qsv.c b/modules/codec/qsv.c
-index 9c0841c87d..598e1ebf35 100644
 --- a/modules/codec/qsv.c
 +++ b/modules/codec/qsv.c
 @@ -32,15 +32,20 @@
@@ -33,7 +31,7 @@ index 9c0841c87d..598e1ebf35 100644
 +
 +#include <vlc_fifo_helper.h>
  
- #include <mfx/mfxvideo.h>
+ #include <vpl/mfxvideo.h>
  
  #define SOUT_CFG_PREFIX     "sout-qsv-"
  
@@ -372,14 +370,15 @@ index 9c0841c87d..598e1ebf35 100644
      sys->params.mfx.GopPicSize  = var_InheritInteger(enc, SOUT_CFG_PREFIX "gop-size");
      sys->params.mfx.GopRefDist  = var_InheritInteger(enc, SOUT_CFG_PREFIX "gop-refdist");
      sys->params.mfx.IdrInterval = var_InheritInteger(enc, SOUT_CFG_PREFIX "idr-interval");
-@@ -497,6 +512,7 @@ static int Open(vlc_object_t *this)
+@@ -497,7 +512,8 @@ static int Open(vlc_object_t *this)
          msg_Dbg(enc, "Encoder in MPEG2 mode, with profile %d and level %d",
              sys->params.mfx.CodecProfile, sys->params.mfx.CodecLevel);
      }
 +    param_out.mfx.CodecId = sys->params.mfx.CodecId;
  
      char *psz_rc = var_InheritString(enc, SOUT_CFG_PREFIX "rc-method");
-     msg_Dbg(enc, "Encoder using '%s' Rate Control method", psz_rc );
+     msg_Dbg(enc, "Encoder using '%s' Rate Control method",
+             psz_rc ? psz_rc : rc_method_text[0]);
 @@ -524,6 +540,51 @@ static int Open(vlc_object_t *this)
              sys->params.mfx.MaxKbps = var_InheritInteger(enc, SOUT_CFG_PREFIX "bitrate-max");
      }
